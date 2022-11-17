@@ -20,11 +20,12 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0.x
-      - name: Go to backend
-        run: cd backend
       - name: Restore dependencies
+        working-directory: ./backend
         run: dotnet restore
       - name: Build
+        working-directory: ./backend
         run: dotnet build --no-restore
       - name: Test
+        working-directory: ./backend
         run: dotnet test --no-build --verbosity normal
