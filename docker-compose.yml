@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+    db:
+      image: "mcr.microsoft.com/azure-sql-edge"
+      ports:
+        - "1433:1433"
+      restart: unless-stopped
+      environment:
+        SA_PASSWORD: "S3cur3P@ssW0rd!"
+        ACCEPT_EULA: "Y"
