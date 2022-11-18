@@ -5,8 +5,13 @@ on:
     branches: [ "main" ]
 
 jobs:
-  deployTest:
-    uses: ./.github/workflows/deployment.yml
+  create-package:
+    uses: ./.github/workflows/createAppPackage.yml
+    with:
+      environment: Test
+  deploy-package:
+    needs: create-package
+    uses: ./.github/workflows/webDeploy.yml
     with:
       environment: Test
     secrets:

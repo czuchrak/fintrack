@@ -1,0 +1,35 @@
+name: "Create app package"
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+jobs:
+  create-app-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet restore
+      - name: Build
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet build --no-restore
+      - name: Publish
+        env:
+          CI: false
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet publish "Fintrack.WebApi.csproj" --no-restore -c Release /p:EnvironmentName=${{ inputs.environment }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: publish-files
+          path: ./backend/Fintrack.WebApi/bin/Release/net6.0/publish/
+  
