@@ -44,7 +44,8 @@ jobs:
           path: ./backend/Fintrack.WebApi/bin/Release/net6.0/publish/
   web-deploy:
     needs: publish-app
-    environment: ${{ inputs.environment }}
+    environment:
+      name: ${{ inputs.environment }}
     runs-on: windows-latest
     env:
       PROJECT_DIRECTORY_PATH: "publish-files"
