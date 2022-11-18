@@ -1,0 +1,33 @@
+name: "DeployToTestEnv"
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  web-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet restore
+      - name: Build
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet build --no-restore
+      - name: Publish
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet publish "Fintrack.WebApi.csproj" -c Release /p:EnvironmentName=Test
+      - name: Deploy
+        uses: SamKirkland/web-deploy@v1
+        with:
+          target-server: ${{ secrets.TARGET_SERVER }}
+          remote-user: ${{ secrets.USER }}
+          private-ssh-key: ${{ secrets.PASSWORD }}
+          destination-path: ${{ secrets.DEST_PATH }}
+        
