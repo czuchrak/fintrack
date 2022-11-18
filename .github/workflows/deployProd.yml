@@ -1,14 +1,13 @@
-name: "DeployTest"
+name: "DeployProd"
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  deployTest:
+  deployProd:
     uses: ./.github/workflows/deployment.yml
     with:
-      environment: Test
+      environment: Production
     secrets:
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
       IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
