@@ -5,10 +5,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  web-deploy:
-    environment: test
+  publish-app:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
@@ -26,13 +24,35 @@ jobs:
           CI: false
         working-directory: ./backend/Fintrack.WebApi
         run: dotnet publish "Fintrack.WebApi.csproj" -c Release /p:EnvironmentName=Test
-      - name: Deploy
-        uses: SamKirkland/web-deploy@v1
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
         with:
-          target-server: ${{ secrets.TARGET_SERVER }}
-          ssh-port: 8172
-          remote-user: ${{ secrets.USER }}
-          private-ssh-key: ${{ secrets.PASSWORD }}
-          source-path: ./backend/Fintrack.WebApi/bin/Release/net6.0/publish/
-          destination-path: ${{ secrets.DEST_PATH }}
-        
+          name: publish-files
+          path: ./backend/Fintrack.WebApi/bin/Release/net6.0/publish/
+  web-deploy:
+    environment: test
+    runs-on: windows-latest
+    env:
+      PROJECT_DIRECTORY_PATH: "backend/Fintrack.WebApi"
+      IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
+      IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
+      IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
+      RECYCLE_APP_NAME: ${{ secrets.RECYCLE_APP_NAME }}
+      WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
+    
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        name: Download artifact
+        with:
+          name: publish-files
+      - name: Stop Application Pool
+        shell: cmd
+        run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:recycleApp -dest:recycleApp="${{ env.RECYCLE_APP_NAME }}",recycleMode="StopAppPool",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",AuthType="Basic"'
+      - name: Deploy Application
+        shell: cmd
+        run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:contentPath="%CD%\${{ env.PROJECT_DIRECTORY_PATH }}\bin\Release\net6.0\publish\" -dest:contentPath="${{ env.WEBSITE_CONTENT_PATH }}",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",authtype="Basic"'
+      - name: Start Application Pool
+        shell: cmd
+        run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:recycleApp -dest:recycleApp="${{ env.RECYCLE_APP_NAME }}",recycleMode="StartAppPool",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",AuthType="Basic"'   
+      
