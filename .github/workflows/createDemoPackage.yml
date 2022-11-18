@@ -2,6 +2,10 @@ name: "Create demo package"
 
 on:
   workflow_call:
+    inputs:
+      artifact:
+        required: true
+        type: string
 
 jobs:
   create-demo-package:
@@ -28,6 +32,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: publish-files
+          name: ${{ inputs.artifact }}
           path: ./frontend/ClientApp/
   
