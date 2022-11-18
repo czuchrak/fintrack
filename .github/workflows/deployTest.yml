@@ -30,6 +30,7 @@ jobs:
           name: publish-files
           path: ./backend/Fintrack.WebApi/bin/Release/net6.0/publish/
   web-deploy:
+    needs: publish-app
     environment: test
     runs-on: windows-latest
     env:
