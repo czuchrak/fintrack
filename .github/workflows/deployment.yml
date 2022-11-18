@@ -1,21 +1,20 @@
 name: "Deployment"
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment'
-        required: true
-        default: 'Test'
-        type: choice
-        options:
-          - Test
-          - Production
   workflow_call:
     inputs:
       environment:
         required: true
         type: string
+      secrets:
+        IIS_SERVER_COMPUTER_NAME:
+          required: true
+        IIS_SERVER_USERNAME:
+          required: true
+        IIS_SERVER_PASSWORD:
+          required: true
+        WEBSITE_CONTENT_PATH:
+          required: true
 
 jobs:
   publish-app:
