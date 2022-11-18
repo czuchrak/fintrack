@@ -1,0 +1,36 @@
+name: "Deploy"
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      IIS_SERVER_COMPUTER_NAME:
+        required: true
+      IIS_SERVER_USERNAME:
+        required: true
+      IIS_SERVER_PASSWORD:
+        required: true
+      WEBSITE_CONTENT_PATH:
+        required: true
+
+jobs:
+  web-deploy:
+    environment:
+      name: ${{ inputs.environment }}
+    runs-on: windows-latest
+    env:
+      PROJECT_DIRECTORY_PATH: "publish-files"
+      IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
+      IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
+      IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
+      WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
+    
+    steps:
+      - uses: actions/download-artifact@v2
+        name: Download artifact
+      - name: Deploy Application
+        shell: cmd
+        run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:contentPath="%CD%\${{ env.PROJECT_DIRECTORY_PATH }}" -skip:objectName=filePath,absolutePath=appsettings.${{ inputs.environment }}.json -skip:Directory=\\demo -dest:contentPath="${{ env.WEBSITE_CONTENT_PATH }}",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",authtype="Basic" -enableRule:AppOffline'

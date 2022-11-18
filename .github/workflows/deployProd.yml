@@ -1,11 +1,17 @@
-name: "DeployProd"
+name: "DeployTest"
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 jobs:
-  deployProd:
-    uses: ./.github/workflows/deployment.yml
+  create-package:
+    uses: ./.github/workflows/createAppPackage.yml
+    with:
+      environment: Production
+  deploy-package:
+    needs: create-package
+    uses: ./.github/workflows/webDeploy.yml
     with:
       environment: Production
     secrets:
