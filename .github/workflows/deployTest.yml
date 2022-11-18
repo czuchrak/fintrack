@@ -26,6 +26,7 @@ jobs:
         working-directory: ./backend/Fintrack.WebApi
         run: dotnet publish "Fintrack.WebApi.csproj" -c Release /p:EnvironmentName=Test
       - name: Deploy
+        environment: test
         uses: SamKirkland/web-deploy@v1
         with:
           target-server: ${{ secrets.TARGET_SERVER }}
