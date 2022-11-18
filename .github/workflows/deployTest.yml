@@ -9,23 +9,29 @@ jobs:
     uses: ./.github/workflows/createAppPackage.yml
     with:
       environment: Test
+      artifact: app-files
   deploy-app-package:
     needs: create-app-package
     uses: ./.github/workflows/webDeploy.yml
     with:
       environment: Test
+      artifact: app-files
     secrets:
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
       IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
       IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
       WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
   create-demo-package:
+    needs: deploy-app-package
     uses: ./.github/workflows/createDemoPackage.yml
+    with:
+      artifact: demo-files
   deploy-demo-package:
     needs: create-demo-package
     uses: ./.github/workflows/webDeploy.yml
     with:
       environment: Test
+      artifact: demo-files
     secrets:
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
       IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
