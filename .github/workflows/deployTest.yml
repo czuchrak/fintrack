@@ -34,7 +34,7 @@ jobs:
     environment: test
     runs-on: windows-latest
     env:
-      PROJECT_DIRECTORY_PATH: "publish-files/"
+      PROJECT_DIRECTORY_PATH: "publish-files"
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
       IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
       IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
