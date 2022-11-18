@@ -30,7 +30,9 @@ jobs:
         uses: SamKirkland/web-deploy@v1
         with:
           target-server: ${{ secrets.TARGET_SERVER }}
+          ssh-port: 8172
           remote-user: ${{ secrets.USER }}
           private-ssh-key: ${{ secrets.PASSWORD }}
+          source-path: ./backend/Fintrack.WebApi/bin/Release/net6.0/publish/
           destination-path: ${{ secrets.DEST_PATH }}
         
