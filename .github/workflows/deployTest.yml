@@ -5,12 +5,12 @@ on:
     branches: [ "main" ]
 
 jobs:
-  create-package:
+  create-app-package:
     uses: ./.github/workflows/createAppPackage.yml
     with:
       environment: Test
-  deploy-package:
-    needs: create-package
+  deploy-app-package:
+    needs: create-app-package
     uses: ./.github/workflows/webDeploy.yml
     with:
       environment: Test
@@ -19,3 +19,15 @@ jobs:
       IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
       IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
       WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
+    create-demo-package:
+      uses: ./.github/workflows/createDemoPackage.yml
+    deploy-demo-package:
+      needs: create-demo-package
+      uses: ./.github/workflows/webDeploy.yml
+      with:
+        environment: Test
+      secrets:
+        IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
+        IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
+        IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
+        WEBSITE_CONTENT_PATH: ${{ secrets.DEMO_CONTENT_PATH }}
