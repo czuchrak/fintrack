@@ -36,6 +36,7 @@ jobs:
         name: Download artifact
         with:
           name: ${{ inputs.artifact }}
+          path: ./${{ inputs.artifact }}
       - name: Deploy Application
         shell: cmd
         run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:contentPath="%CD%\${{ env.PROJECT_DIRECTORY_PATH }}" -skip:objectName=filePath,absolutePath=appsettings.${{ inputs.environment }}.json -skip:objectName=filePath,absolutePath=web.config -skip:Directory=\\demo -dest:contentPath="${{ env.WEBSITE_CONTENT_PATH }}",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",authtype="Basic" -enableRule:AppOffline'
