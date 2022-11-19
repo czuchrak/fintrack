@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deployTest:
+  deployProd:
     uses: ./.github/workflows/deployEnv.yml
     with:
       environment: Production
