@@ -5,34 +5,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  create-app-package:
-    uses: ./.github/workflows/createAppPackage.yml
+  deployTest:
+    uses: ./.github/workflows/deployEnv.yml
     with:
       environment: Test
-      artifact: files-app
-  deploy-app-package:
-    needs: create-app-package
-    uses: ./.github/workflows/webDeploy.yml
-    with:
-      environment: Test
-      artifact: files-app
-    secrets:
-      IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
-      IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
-      IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
-      WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
-  create-demo-package:
-    uses: ./.github/workflows/createDemoPackage.yml
-    with:
-      artifact: files-demo
-  deploy-demo-package:
-    needs: create-demo-package
-    uses: ./.github/workflows/webDeploy.yml
-    with:
-      environment: Test
-      artifact: files-demo
-    secrets:
-      IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
-      IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
-      IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
-      WEBSITE_CONTENT_PATH: ${{ secrets.DEMO_CONTENT_PATH }}
+      
