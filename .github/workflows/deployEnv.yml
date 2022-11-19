@@ -22,7 +22,7 @@ jobs:
   create-app-package:
     uses: ./.github/workflows/createAppPackage.yml
     with:
-      environment: Test
+      environment: ${{ inputs.environment }}
       artifact: files-app
   deploy-app-package:
     needs: create-app-package
