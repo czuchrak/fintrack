@@ -8,4 +8,10 @@ jobs:
     uses: ./.github/workflows/deployEnv.yml
     with:
       environment: Production
+    secrets:
+      IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
+      IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
+      IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
+      WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
+      DEMO_CONTENT_PATH: ${{ secrets.DEMO_CONTENT_PATH }}
       

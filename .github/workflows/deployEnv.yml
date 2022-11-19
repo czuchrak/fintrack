@@ -6,6 +6,17 @@ on:
       environment:
         required: true
         type: string
+    secrets:
+      IIS_SERVER_COMPUTER_NAME:
+        required: true
+      IIS_SERVER_USERNAME:
+        required: true
+      IIS_SERVER_PASSWORD:
+        required: true
+      WEBSITE_CONTENT_PATH:
+        required: true
+      DEMO_CONTENT_PATH:
+        required: true
 
 jobs:
   create-app-package:
