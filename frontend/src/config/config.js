@@ -13,4 +13,5 @@ export const appConfig = {
   testApp: process.env.REACT_APP_TEST === "true",
   captchaKey: process.env.REACT_APP_CAPTCHAKEY,
   prodMode: process.env.REACT_APP_PROD_MODE === "true",
+  appVersion: process.env.REACT_APP_VERSION,
 };
