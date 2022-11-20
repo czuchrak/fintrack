@@ -1,12 +1,12 @@
 <div align="center">
   <br>
-  <a href="https://fintrack.app">
-    <img style="background-color: rgb(300, 300, 300); padding: 10px" src="https://fintrack.app/static/logo.png" alt="Fintrack.app" width="200" />
+  <a href="https://fintrack.app" target="_blank">
+    <img src="https://fintrack.app/static/images/logo_background.png" alt="Fintrack.app" width="300" />
   </a>
   <br>
 </div>
 
-<h4 align="center">Web application to track changes in your net worth</h4>
+<p align="center"><b>Web application to track changes in your net worth</b></p>
 
 <p align="center">
   <a href="https://github.com/czuchrak/fintrack/actions/workflows/dotnet.yml">
@@ -27,14 +27,14 @@
   </a>
 </p>
 
-# About
+## About
 
 Fintrack.app is a web application that allows you to track changes in your net worth. Add assets and liabilities,
 provide their current value regularly, set financial goals and view statistics and charts.
 
 ## Demo
 
-See demo [here](https://fintrack.app/demo).
+See demo <a href="https://fintrack.app/demo" target="_blank">here</a>.
 
 ## Tech Stack
 
@@ -46,31 +46,29 @@ See demo [here](https://fintrack.app/demo).
 
 ## Run locally
 
-### Prerequisites
+1. Install <a href="https://git-scm.com" target="_blank">Git</a>, <a href="https://nodejs.org" target="_blank">
+   Node.js</a>, <a href="https://www.docker.com" target="_blank">Docker</a>
+   and <a href="https://dotnet.microsoft.com/en-us/download/dotnet/6.0" target="_blank">
+   .NET 6</a> on your machine.
 
-Install [Git](https://git-scm.com), [Node.js](https://nodejs.org/), [Docker](https://www.docker.com)
-and [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) on your machine.
-
-### Run
-
-1. Clone the repo
+2. Clone the repo
    ```sh
    git clone https://github.com/czuchrak/fintrack.git
    ```
-2. Go to the project directory
+3. Go to the project directory
    ```sh
    cd fintrack
    ```
-3. Run database
+4. Run database
    ```sh
    docker-compose up --build
    ```
-4. Run application
+5. Run application
    ```sh
    cd backend/Fintrack.WebApi
    dotnet run
    ```
-5. Open website
+6. Open website
    ```html
    https://localhost:5001
    ```
