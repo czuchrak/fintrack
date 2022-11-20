@@ -1,19 +1,26 @@
-import {Icon} from "@iconify/react";
-import {useRef, useState} from "react";
+import { Icon } from "@iconify/react";
+import { useRef, useState } from "react";
 import settingsFill from "@iconify/icons-eva/settings-fill";
 import emailFill from "@iconify/icons-eva/email-fill";
-import edit2Outline from "@iconify/icons-eva/edit-2-outline";
 import briefcaseOutline from "@iconify/icons-eva/briefcase-outline";
 import person from "@iconify/icons-eva/person-fill";
-import {Link as RouterLink} from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 // material
-import {alpha} from "@mui/material/styles";
-import {Box, Button, Divider, IconButton, MenuItem, Typography, Zoom,} from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  MenuItem,
+  Typography,
+  Zoom,
+} from "@mui/material";
 // components
 import MenuPopover from "src/components/MenuPopover";
 //
-import {useAuth} from "src/navigation/PrivateRoute";
-import {appConfig} from "src/config/config";
+import { useAuth } from "src/navigation/PrivateRoute";
+import { appConfig } from "src/config/config";
 
 const demo = appConfig.demo;
 
@@ -42,12 +49,6 @@ export default function AccountPopover() {
       label: "Ustawienia",
       icon: settingsFill,
       linkTo: process.env.PUBLIC_URL + "/settings",
-      visible: true,
-    },
-    {
-      label: "Lista zmian",
-      icon: edit2Outline,
-      linkTo: process.env.PUBLIC_URL + "/changelog",
       visible: true,
     },
     {

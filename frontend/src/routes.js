@@ -1,5 +1,5 @@
-import {Navigate, useRoutes} from "react-router-dom";
-import PrivateRoute, {useAuth} from "./navigation/PrivateRoute";
+import { Navigate, useRoutes } from "react-router-dom";
+import PrivateRoute, { useAuth } from "./navigation/PrivateRoute";
 import MainLayout from "./layouts/";
 import EmptyLayout from "./layouts/EmptyLayout";
 import Login from "./pages/authentication/Login";
@@ -9,10 +9,9 @@ import NetWorthDashboard from "./pages/netWorth/NetWorthDashboard";
 import NetWorthParts from "./pages/netWorth/NetWorthParts";
 import NetWorthData from "./pages/netWorth/NetWorthData";
 import ResetPassword from "./pages/authentication/ResetPassword";
-import Changelog from "./pages/profile/Changelog";
 import Contact from "./pages/profile/Contact";
 import Loader from "./components/Loader";
-import {appConfig} from "src/config/config";
+import { appConfig } from "src/config/config";
 import Auth from "./pages/authentication/Auth";
 import Settings from "./pages/profile/Settings";
 import Terms from "./pages/Terms";
@@ -175,7 +174,6 @@ export default function Router() {
         getAuthChild("register", <Register />),
         getAuthChild("resetpassword", <ResetPassword />),
 
-        getSettingsChild("changelog", <Changelog />),
         getSettingsChild("contact", <Contact />),
         getSettingsChild("settings", <Settings />),
 
