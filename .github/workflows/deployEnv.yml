@@ -6,12 +6,7 @@ on:
       environment:
         required: true
         type: string
-      demoUrl:
-        required: true
-        type: string
-      appUrl:
-        required: true
-        type: string
+    
     secrets:
       IIS_SERVER_COMPUTER_NAME:
         required: true
@@ -26,35 +21,71 @@ on:
 
 jobs:
   create-app-package:
-    uses: ./.github/workflows/createAppPackage.yml
-    with:
-      environment: ${{ inputs.environment }}
-      artifact: files-app
-  deploy-app-package:
-    needs: create-app-package
-    uses: ./.github/workflows/webDeploy.yml
-    with:
-      environment: ${{ inputs.environment }}
-      url: ${{ inputs.appUrl }}
-      artifact: files-app
-    secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet restore
+      - name: Build
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet build --no-restore
+      - name: Publish
+        env:
+          CI: false
+        working-directory: ./backend/Fintrack.WebApi
+        run: dotnet publish "Fintrack.WebApi.csproj" --no-restore -c Release /p:EnvironmentName=${{ inputs.environment }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-app
+          path: ./backend/Fintrack.WebApi/bin/Release/net6.0/publish/
+  create-demo-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 17.x
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      - name: npm install
+        working-directory: ./frontend
+        run: npm install
+      - name: Publish
+        env:
+          CI: false
+        working-directory: ./frontend
+        run: npm run build:demo
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: files-demo
+          path: ./frontend/ClientApp/
+  deploy-demo-package:
+    needs: [ create-app-package, create-demo-package ]
+    runs-on: windows-latest
+    environment:
+      name: ${{ inputs.environment }}
+    env:
+      APP_DIRECTORY_PATH: files-app
+      DEMO_DIRECTORY_PATH: files-demo
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
       IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
       IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
       WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
-  create-demo-package:
-    uses: ./.github/workflows/createDemoPackage.yml
-    with:
-      artifact: files-demo
-  deploy-demo-package:
-    needs: create-demo-package
-    uses: ./.github/workflows/webDeploy.yml
-    with:
-      environment: ${{ inputs.environment }}
-      url: ${{ inputs.demoUrl }}
-      artifact: files-demo
-    secrets:
-      IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
-      IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
-      IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
-      WEBSITE_CONTENT_PATH: ${{ secrets.DEMO_CONTENT_PATH }}
+      DEMO_CONTENT_PATH: ${{ secrets.DEMO_CONTENT_PATH }}
+    steps:
+      - uses: actions/download-artifact@v2
+        name: Download artifacts
+      - name: Deploy Application
+        shell: cmd
+        run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:contentPath="%CD%\${{ env.APP_DIRECTORY_PATH }}" -skip:objectName=filePath,absolutePath=appsettings.${{ inputs.environment }}.json -skip:Directory=\\demo -dest:contentPath="${{ env.WEBSITE_CONTENT_PATH }}",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",authtype="Basic" -enableRule:AppOffline'
+      - name: Deploy Demo
+        shell: cmd
+        run: '"C:/Program Files (x86)/IIS/Microsoft Web Deploy V3/msdeploy.exe" -verb:sync -allowUntrusted -source:contentPath="%CD%\${{ env.DEMO_DIRECTORY_PATH }}" -skip:objectName=filePath,absolutePath=web.config -dest:contentPath="${{ env.DEMO_CONTENT_PATH }}",computerName="${{ env.IIS_SERVER_COMPUTER_NAME }}",username="${{ env.IIS_SERVER_USERNAME }}",password="${{ env.IIS_SERVER_PASSWORD }}",authtype="Basic" -enableRule:AppOffline'
