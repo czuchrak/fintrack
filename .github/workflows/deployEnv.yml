@@ -6,6 +6,12 @@ on:
       environment:
         required: true
         type: string
+      demoUrl:
+        required: true
+        type: string
+      appUrl:
+        required: true
+        type: string
     secrets:
       IIS_SERVER_COMPUTER_NAME:
         required: true
@@ -29,6 +35,7 @@ jobs:
     uses: ./.github/workflows/webDeploy.yml
     with:
       environment: ${{ inputs.environment }}
+      url: ${{ inputs.appUrl }}
       artifact: files-app
     secrets:
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
@@ -44,6 +51,7 @@ jobs:
     uses: ./.github/workflows/webDeploy.yml
     with:
       environment: ${{ inputs.environment }}
+      url: ${{ inputs.demoUrl }}
       artifact: files-demo
     secrets:
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
