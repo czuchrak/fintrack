@@ -61,8 +61,8 @@ export default function Home() {
             spacing={{ xs: 1.5 }}
             sx={{ mt: 2 }}
           >
-            <Button variant="outlined" href="https://fintrack.app/demo">
-              Demo
+            <Button target="_blank" variant="outlined" href="https://github.com/czuchrak/fintrack">
+              Zobacz na GitHub
             </Button>
             <Button
               variant="contained"

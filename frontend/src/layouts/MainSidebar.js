@@ -101,22 +101,20 @@ export default function MainSidebar({ isOpenSidebar, onCloseSidebar }) {
             <>
               <Box sx={{ textAlign: "center" }}>
                 <Typography gutterBottom variant="h6">
-                  Masz uwagi?
+                  Open source
                 </Typography>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Pomóż rozwijać Fintrack.app
-                  <br />
-                  Napisz do nas!
+                  Kod źródłowy aplikacji fintrack.app jest otwarty.
                 </Typography>
               </Box>
 
               <Button
                 fullWidth
-                component={RouterLink}
-                to={process.env.PUBLIC_URL + "/contact"}
+                target="_blank"
+                href={"https://github.com/czuchrak/fintrack"}
                 variant="contained"
               >
-                Kontakt
+                Zobacz na GitHub
               </Button>
             </>
           )}
