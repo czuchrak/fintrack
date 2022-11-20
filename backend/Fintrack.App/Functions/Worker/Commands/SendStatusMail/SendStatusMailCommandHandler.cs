@@ -69,6 +69,6 @@ public class SendStatusMailCommandHandler : IRequestHandler<SendStatusMailComman
 
     private static string Truncate(string value)
     {
-        return value.Length > 100 ? value[..100] : value;
+        return !string.IsNullOrEmpty(value) && value.Length > 100 ? value[..100] : value;
     }
 }

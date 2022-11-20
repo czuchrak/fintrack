@@ -1,10 +1,10 @@
-import {MenuItem} from "@mui/material";
-import {getFullDate} from "src/utils/helpers";
+import { MenuItem } from "@mui/material";
+import { getFullDate } from "src/utils/helpers";
 import Sidebar from "../utilities/Sidebar";
-import {CheckboxInput, SelectInput, TextInput} from "../form/Inputs";
-import {DateTimeInput} from "../form/Dates";
-import {useForm} from "../form/FormikHelper";
-import {DateValidation, TextValidation} from "../form/YupHelper";
+import { CheckboxInput, SelectInput, TextInput } from "../form/Inputs";
+import { DateTimeInput } from "../form/Dates";
+import { useForm } from "../form/FormikHelper";
+import { DateValidation, TextValidation } from "../form/YupHelper";
 
 export default function NotificationSidebar({
   isOpenForm,
@@ -48,13 +48,13 @@ export default function NotificationSidebar({
       <TextInput name="message" label="Message" formik={formik} />
 
       <SelectInput name="url" label="Url" formik={formik}>
-        <MenuItem>-</MenuItem>
-        <MenuItem value="/changelog">Changelog</MenuItem>
-        <MenuItem value="/networth/parts">NetWorthParts</MenuItem>
+        <MenuItem value="">-</MenuItem>
+        <MenuItem value="https://github.com/czuchrak/fintrack/blob/main/CHANGELOG.md">
+          Changelog
+        </MenuItem>
         <MenuItem value="/networth/data">NetWorthData</MenuItem>
         <MenuItem value="/contact">Contact</MenuItem>
         <MenuItem value="/settings">Ustawienia</MenuItem>
-        <MenuItem value="/property/settings">PropertySettings</MenuItem>
       </SelectInput>
 
       <DateTimeInput name="validFrom" label="ValidFrom" formik={formik} />

@@ -1,39 +1,38 @@
 import PropTypes from "prop-types";
-import {useRef, useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
-import {Icon} from "@iconify/react";
+import { useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Icon } from "@iconify/react";
 import bellFill from "@iconify/icons-eva/bell-fill";
 import clockFill from "@iconify/icons-eva/clock-fill";
 import alertTriangleOutline from "@iconify/icons-eva/alert-triangle-outline";
 import checkmarkCircleOutline from "@iconify/icons-eva/checkmark-circle-outline";
 import doneAllFill from "@iconify/icons-eva/done-all-fill";
 // material
-import {alpha} from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 import {
-    Avatar,
-    Badge,
-    Box,
-    Divider,
-    IconButton,
-    List,
-    ListItemAvatar,
-    ListItemButton,
-    ListItemText,
-    Tooltip,
-    Typography,
-    Zoom,
+  Avatar,
+  Badge,
+  Box,
+  Divider,
+  IconButton,
+  List,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  Tooltip,
+  Typography,
+  Zoom,
 } from "@mui/material";
 // components
 import Scrollbar from "src/components/Scrollbar";
 import MenuPopover from "src/components/MenuPopover";
-import {useAuth} from "src/navigation/PrivateRoute";
-import {getFullDateInText} from "src/utils/helpers";
-import {markNotificationAsRead} from "src/services";
+import { useAuth } from "src/navigation/PrivateRoute";
+import { getFullDateInText } from "src/utils/helpers";
+import { markNotificationAsRead } from "src/services";
 import databaseFilled from "@iconify/icons-ant-design/database-filled";
 import emailFill from "@iconify/icons-eva/email-fill";
-import {useSelector} from "react-redux";
-import {appConfig} from "src/config/config";
-import homeFill from "@iconify/icons-eva/home-fill";
+import { useSelector } from "react-redux";
+import { appConfig } from "src/config/config";
 
 const demo = appConfig.demo;
 
@@ -75,7 +74,8 @@ export default function NotificationsPopover() {
   const navigateToUrl = (url) => {
     if (url && location.pathname !== process.env.PUBLIC_URL + url) {
       handleClose();
-      navigate(process.env.PUBLIC_URL + url);
+      if (url.startsWith("https")) window.open(url, "_blank").focus();
+      else navigate(process.env.PUBLIC_URL + url);
     }
   };
 
@@ -107,11 +107,6 @@ export default function NotificationsPopover() {
       return {
         avatar: <Icon icon={emailFill} />,
         title: "Prośba o opinię",
-      };
-    } else if (notification.type === "propertySettings") {
-      return {
-        avatar: <Icon icon={homeFill} />,
-        title: "Twoje nieruchomości",
       };
     }
     return {

@@ -1,15 +1,23 @@
-import {useEffect, useState} from "react";
-import {Link as RouterLink} from "react-router-dom";
-import {Button, Container, IconButton, Stack, TableCell, TableRow, Typography,} from "@mui/material";
-import {Icon} from "@iconify/react";
-import Page from "src/components/Page";
-import {useAuth} from "src/navigation/PrivateRoute";
+import { useEffect, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import {
-    addNotification,
-    deleteNotification,
-    duplicateNotification,
-    getNotifications,
-    updateNotification,
+  Button,
+  Container,
+  IconButton,
+  Stack,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { Icon } from "@iconify/react";
+import Page from "src/components/Page";
+import { useAuth } from "src/navigation/PrivateRoute";
+import {
+  addNotification,
+  deleteNotification,
+  duplicateNotification,
+  getNotifications,
+  updateNotification,
 } from "src/services";
 import moment from "moment";
 import "moment/locale/pl";
@@ -156,7 +164,9 @@ export default function Notifications() {
                       <TableCell align="center">{id.substring(0, 8)}</TableCell>
                       <TableCell align="center">{type}</TableCell>
                       <TableCell align="center">{message}</TableCell>
-                      <TableCell align="center">{url}</TableCell>
+                      <TableCell align="center">
+                        {url.substring(0, 19)}
+                      </TableCell>
                       <TableCell align="center">
                         <Typography
                           color={

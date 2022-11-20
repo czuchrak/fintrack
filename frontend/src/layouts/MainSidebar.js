@@ -1,20 +1,25 @@
 import PropTypes from "prop-types";
-import {useEffect} from "react";
-import {Link as RouterLink, useLocation} from "react-router-dom";
-// material
-import {Icon} from "@iconify/react";
-import {styled} from "@mui/material/styles";
-import {Box, Button, Drawer, IconButton, Stack, Typography,} from "@mui/material";
+import { useEffect } from "react";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import { Icon } from "@iconify/react";
+import { styled } from "@mui/material/styles";
+import {
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import facebookOutline from "@iconify/icons-eva/facebook-outline";
-// components
 import Logo from "src/components/Logo";
 import Scrollbar from "src/components/Scrollbar";
 import NavSection from "src/components/NavSection";
-import {MHidden} from "src/components/@material-extend";
-//
-import {appConfig} from "src/config/config";
+import { MHidden } from "src/components/@material-extend";
+import { appConfig } from "src/config/config";
 
 const demo = appConfig.demo;
+const appVersion = appConfig.appVersion;
 
 // ----------------------------------------------------------------------
 
@@ -101,22 +106,20 @@ export default function MainSidebar({ isOpenSidebar, onCloseSidebar }) {
             <>
               <Box sx={{ textAlign: "center" }}>
                 <Typography gutterBottom variant="h6">
-                  Masz uwagi?
+                  Open source
                 </Typography>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Pomóż rozwijać Fintrack.app
-                  <br />
-                  Napisz do nas!
+                  Kod źródłowy aplikacji fintrack.app jest otwarty.
                 </Typography>
               </Box>
 
               <Button
                 fullWidth
-                component={RouterLink}
-                to={process.env.PUBLIC_URL + "/contact"}
+                target="_blank"
+                href={"https://github.com/czuchrak/fintrack"}
                 variant="contained"
               >
-                Kontakt
+                Zobacz na GitHub
               </Button>
             </>
           )}
@@ -129,6 +132,11 @@ export default function MainSidebar({ isOpenSidebar, onCloseSidebar }) {
           >
             <Icon icon={facebookOutline} sx={{ margin: 0 }} />
           </IconButton>
+        </Stack>
+        <Stack textAlign="center">
+          <Typography variant="caption">
+            <i>v{appVersion}</i>
+          </Typography>
         </Stack>
       </Box>
     </Scrollbar>

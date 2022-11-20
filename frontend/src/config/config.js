@@ -10,6 +10,8 @@ export const firebaseConfig = {
 
 export const appConfig = {
   demo: process.env.REACT_APP_DEMO === "true",
+  testApp: process.env.REACT_APP_TEST === "true",
   captchaKey: process.env.REACT_APP_CAPTCHAKEY,
   prodMode: process.env.REACT_APP_PROD_MODE === "true",
+  appVersion: process.env.REACT_APP_VERSION,
 };

@@ -1,10 +1,22 @@
-import {Box, Button, Card, Divider, Grid, Stack, Typography,} from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Button,
+  Card,
+  Divider,
+  Grid,
+  Link,
+  Stack,
+  Typography,
+} from "@mui/material";
 import Logo from "src/components/Logo";
 import Typewriter from "typewriter-effect";
-import {useTheme} from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import HomeLayout from "src/components/home/HomeLayout";
-import {Link as RouterLink} from "react-router-dom";
-
+import { Link as RouterLink } from "react-router-dom";
+import { appConfig } from "../config/config";
+const testApp = appConfig.testApp;
 // ----------------------------------------------------------------------
 
 export default function Home() {
@@ -13,6 +25,23 @@ export default function Home() {
   return (
     <HomeLayout>
       <Grid container textAlign="center">
+        {testApp && (
+          <Stack sx={{ width: "100%" }}>
+            <Alert severity="info">
+              <AlertTitle>
+                To jest środowisko testowe, które może być niestabilne.{" "}
+                <Link
+                  underline="hover"
+                  sx={{ cursor: "pointer" }}
+                  href="https://fintrack.app"
+                >
+                  Kliknij tutaj
+                </Link>
+                , aby przejść na produkcyjną wersję aplikacji fintrack.app.
+              </AlertTitle>
+            </Alert>
+          </Stack>
+        )}
         <Grid item xs={12} md={6} sx={{ height: "100%" }} data-aos="fade-right">
           <Box sx={{ py: 4, textAlign: "-webkit-center" }}>
             <Logo sx={{ height: 100 }} />
@@ -61,8 +90,12 @@ export default function Home() {
             spacing={{ xs: 1.5 }}
             sx={{ mt: 2 }}
           >
-            <Button variant="outlined" href="https://fintrack.app/demo">
-              Demo
+            <Button
+              target="_blank"
+              variant="outlined"
+              href="https://github.com/czuchrak/fintrack"
+            >
+              Zobacz na GitHub
             </Button>
             <Button
               variant="contained"
