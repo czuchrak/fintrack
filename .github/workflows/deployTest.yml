@@ -9,8 +9,6 @@ jobs:
     uses: ./.github/workflows/deployEnv.yml
     with:
       environment: Test
-      demoUrl: https://czuchra.com/demo
-      appUrl: https://czuchra.com/fintrack-test
     secrets:
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
       IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}

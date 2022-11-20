@@ -8,8 +8,6 @@ jobs:
     uses: ./.github/workflows/deployEnv.yml
     with:
       environment: Production
-      demoUrl: https://fintrack.app/demo
-      appUrl: https://fintrack.app
     secrets:
       IIS_SERVER_COMPUTER_NAME: ${{ secrets.IIS_SERVER_COMPUTER_NAME }}
       IIS_SERVER_USERNAME: ${{ secrets.IIS_SERVER_USERNAME }}
