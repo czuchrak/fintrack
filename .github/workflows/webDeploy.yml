@@ -6,6 +6,9 @@ on:
       environment:
         required: true
         type: string
+      url:
+        required: true
+        type: string
       artifact:
         required: true
         type: string
@@ -23,6 +26,7 @@ jobs:
   web-deploy:
     environment:
       name: ${{ inputs.environment }}
+      url: ${{ inputs.url }}
     runs-on: windows-latest
     env:
       PROJECT_DIRECTORY_PATH: ${{ inputs.artifact }}
