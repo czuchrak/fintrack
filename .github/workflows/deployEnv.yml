@@ -67,7 +67,7 @@ jobs:
         with:
           name: files-demo
           path: ./frontend/ClientApp/
-  deploy-demo-package:
+  deploy-packages:
     needs: [ create-app-package, create-demo-package ]
     runs-on: windows-latest
     environment:
