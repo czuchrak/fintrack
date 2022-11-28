@@ -15,3 +15,5 @@ jobs:
       IIS_SERVER_PASSWORD: ${{ secrets.IIS_SERVER_PASSWORD }}
       WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
       DEMO_CONTENT_PATH: ${{ secrets.DEMO_CONTENT_PATH }}
+  runE2ETests:
+    uses: ./.github/workflows/runE2ETests.yml

@@ -1,0 +1,15 @@
+name: "Run E2E Tests"
+
+on:
+  workflow_call:
+
+jobs:
+  run-e2e-tests:
+    runs-on: ubuntu-latest
+    name: E2E tests
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cypress-io/github-action@v4
+        with:
+          working-directory: frontend
+          browser: chrome
