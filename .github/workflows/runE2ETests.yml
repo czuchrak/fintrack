@@ -8,13 +8,13 @@ jobs:
   run-e2e-tests:
     runs-on: ubuntu-latest
     name: E2E tests
-    environment: Test
     steps:
       - uses: actions/checkout@v2
       - uses: cypress-io/github-action@v4
         with:
           working-directory: frontend
           browser: chrome
+          record: true
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
