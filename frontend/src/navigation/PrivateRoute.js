@@ -42,7 +42,7 @@ const testApp = appConfig.testApp;
 if (!demo) {
   const app = initializeApp(firebaseConfig);
   getAnalytics();
-  if (appConfig.prodMode)
+  if (appConfig.prodMode && !testApp)
     initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider(appConfig.captchaKey),
       isTokenAutoRefreshEnabled: true,
