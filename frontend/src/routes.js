@@ -33,6 +33,7 @@ import NetWorthGoals from "./pages/netWorth/NetWorthGoals";
 export default function Router() {
   let auth = useAuth();
   const demo = appConfig.demo;
+  const testApp = appConfig.testApp;
 
   const getUrl = (path) => {
     return process.env.PUBLIC_URL + path;
@@ -118,7 +119,7 @@ export default function Router() {
         {
           path: "mailverification",
           element:
-            demo || (auth.user && auth.user.emailVerified) ? (
+            demo || testApp || (auth.user && auth.user.emailVerified) ? (
               <Navigate to={getUrl("/networth/dashboard")} replace />
             ) : (
               <PrivateRoute>

@@ -23,9 +23,7 @@ describe("Profile", () => {
 
     //good register
     cy.typeInputByName("password", "password-very-hard123");
-    cy.clickCheckUrl("Zarejestruj się", "/onboarding/mailverification");
-    cy.get("[data-cy=verifyEmail]").click();
-    cy.contains("Mail weryfikujący został wysłany");
+    cy.clickCheckUrl("Zarejestruj się", "/networth/dashboard");
 
     //logout
     cy.clickProfile();

@@ -1,18 +1,30 @@
-import {useMemo, useState} from "react";
-import {Icon} from "@iconify/react";
-import {matchPath, NavLink as RouterLink, useLocation,} from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Icon } from "@iconify/react";
+import {
+  matchPath,
+  NavLink as RouterLink,
+  useLocation,
+} from "react-router-dom";
 import arrowIosForwardFill from "@iconify/icons-eva/arrow-ios-forward-fill";
 import arrowIosDownwardFill from "@iconify/icons-eva/arrow-ios-downward-fill";
-import {alpha, styled, useTheme} from "@mui/material/styles";
-import {Box, Collapse, List, ListItemButton, ListItemIcon, ListItemText,} from "@mui/material";
+import { alpha, styled, useTheme } from "@mui/material/styles";
+import {
+  Box,
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import trendingUpFill from "@iconify/icons-eva/trending-up-fill";
 import homeFill from "@iconify/icons-eva/home-fill";
 import starFill from "@iconify/icons-eva/star-fill";
-import {useSelector} from "react-redux";
-import {useAuth} from "../navigation/PrivateRoute";
-import {appConfig} from "../config/config";
+import { useSelector } from "react-redux";
+import { useAuth } from "../navigation/PrivateRoute";
+import { appConfig } from "../config/config";
 
 const demo = appConfig.demo;
+const testApp = appConfig.testApp;
 
 // ----------------------------------------------------------------------
 
@@ -159,7 +171,7 @@ export default function NavSection({ ...other }) {
 
   const navConfig = useMemo(() => {
     const getIcon = (name) => <Icon icon={name} width={22} height={22} />;
-    const start = !demo && auth.user && !auth.user.emailVerified;
+    const start = !demo && !testApp && auth.user && !auth.user.emailVerified;
 
     const result = [];
 

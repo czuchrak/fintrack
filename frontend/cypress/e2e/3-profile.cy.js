@@ -159,6 +159,7 @@ describe("Profile", () => {
   it("send message", () => {
     cy.clickByText("Zaloguj się");
     cy.login("contact@fintrack.app", "password-very-hard123");
+    cy.clickProfile();
     cy.clickCheckUrl("Kontakt", "/contact");
 
     //empty fields
@@ -170,17 +171,6 @@ describe("Profile", () => {
     cy.typeTextAreaByName("message", "No elo elo, co tam? hejo, pzdr K.");
     cy.clickCheckUrl("Wyślij", "/contact");
     cy.contains("Wiadomość została wysłana.");
-
-    //logout
-    cy.clickProfile();
-    cy.logout();
-  });
-
-  it("changelog", () => {
-    cy.clickByText("Zaloguj się");
-    cy.login("contact@fintrack.app", "password-very-hard123");
-    cy.clickProfile();
-    cy.clickCheckUrl("Lista zmian", "/changelog");
 
     //logout
     cy.clickProfile();

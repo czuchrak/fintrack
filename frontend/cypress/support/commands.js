@@ -19,13 +19,13 @@ Cypress.Commands.add("visitPrivatePage", (url) => {
 });
 
 Cypress.Commands.add("typeInputByName", (name, value) => {
-  cy.get(`input[name="${name}"]`).clear();
-  cy.get(`input[name="${name}"]`).type(value);
+  cy.get(`input[name="${name}"]`).focus().clear();
+  cy.get(`input[name="${name}"]`).focus().type(value);
 });
 
 Cypress.Commands.add("typeTextAreaByName", (name, value) => {
-  cy.get(`textarea[name="${name}"]`).clear();
-  cy.get(`textarea[name="${name}"]`).type(value);
+  cy.get(`textarea[name="${name}"]`).focus().clear();
+  cy.get(`textarea[name="${name}"]`).focus().type(value);
 });
 
 Cypress.Commands.add("checkboxCheck", (name) => {

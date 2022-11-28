@@ -57,10 +57,6 @@ describe("Pages", () => {
     cy.visitPrivatePage("/settings");
   });
 
-  it("changelog", () => {
-    cy.visitPrivatePage("/changelog");
-  });
-
   it("admin", () => {
     cy.visitPrivatePage("/admin");
   });
