@@ -16,4 +16,5 @@ jobs:
       WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
       DEMO_CONTENT_PATH: ${{ secrets.DEMO_CONTENT_PATH }}
   runE2ETests:
+    needs: deployTest
     uses: ./.github/workflows/runE2ETests.yml
