@@ -1,38 +1,43 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
-import {Navigate} from "react-router-dom";
-import {initializeApp} from "firebase/app";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { initializeApp } from "firebase/app";
 import Loader from "../components/Loader";
-import {deleteUser as bckDeleteUser, getUser, setMailVerificationSent,} from "src/services";
 import {
-    applyActionCode,
-    browserLocalPersistence,
-    browserSessionPersistence,
-    confirmPasswordReset,
-    createUserWithEmailAndPassword,
-    deleteUser,
-    EmailAuthProvider,
-    getAuth,
-    GoogleAuthProvider,
-    onAuthStateChanged,
-    reauthenticateWithCredential,
-    sendEmailVerification,
-    sendPasswordResetEmail,
-    setPersistence,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    updatePassword,
-    verifyPasswordResetCode,
+  deleteUser as bckDeleteUser,
+  getUser,
+  setMailVerificationSent,
+} from "src/services";
+import {
+  applyActionCode,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  confirmPasswordReset,
+  createUserWithEmailAndPassword,
+  deleteUser,
+  EmailAuthProvider,
+  getAuth,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  setPersistence,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  updatePassword,
+  verifyPasswordResetCode,
 } from "firebase/auth";
-import {firebaseConfig} from "../config/config";
-import {appConfig} from "src/config/config";
-import {initializeAppCheck, ReCaptchaV3Provider} from "firebase/app-check";
-import {getAnalytics} from "firebase/analytics";
-import {useDispatch} from "react-redux";
-import {addError} from "src/redux/slices/errorSlice";
-import {addProfile} from "src/redux/slices/profileSlice";
-import {useReduxActions} from "../redux/store";
+import { firebaseConfig } from "../config/config";
+import { appConfig } from "src/config/config";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { getAnalytics } from "firebase/analytics";
+import { useDispatch } from "react-redux";
+import { addError } from "src/redux/slices/errorSlice";
+import { addProfile } from "src/redux/slices/profileSlice";
+import { useReduxActions } from "../redux/store";
 
 const demo = appConfig.demo;
+const testApp = appConfig.testApp;
 
 if (!demo) {
   const app = initializeApp(firebaseConfig);
@@ -273,7 +278,13 @@ function PrivateRoute({ children, admin, mailVerification }) {
     );
   }
 
-  if (!demo && mailVerification && auth.user && !auth.user.emailVerified) {
+  if (
+    !demo &&
+    !testApp &&
+    mailVerification &&
+    auth.user &&
+    !auth.user.emailVerified
+  ) {
     return (
       <Navigate
         to={process.env.PUBLIC_URL + "/onboarding/mailverification"}
