@@ -1,3 +1,9 @@
+## v1.9.1 (2023-01-09)
+
+#### Features
+
+* Fix TLS issue on safari
+
 ## v1.9.0 (2022-11-20)
 
 #### Features
