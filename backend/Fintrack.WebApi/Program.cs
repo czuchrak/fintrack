@@ -37,7 +37,7 @@ public static class Program
             .UseSerilog()
             .ConfigureWebHostDefaults(webBuilder =>
             {
-                webBuilder.UseKestrel(kestrelOptions =>
+                webBuilder.ConfigureKestrel(kestrelOptions =>
                 {
                     kestrelOptions.ConfigureHttpsDefaults(httpsOptions =>
                     {
