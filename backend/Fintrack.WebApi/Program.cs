@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Security.Authentication;
 using Fintrack.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +35,17 @@ public static class Program
     {
         return Host.CreateDefaultBuilder(args)
             .UseSerilog()
-            .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseKestrel(kestrelOptions =>
+                {
+                    kestrelOptions.ConfigureHttpsDefaults(httpsOptions =>
+                    {
+                        httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+                    });
+                });
+
+                webBuilder.UseStartup<Startup>();
+            });
     }
 }

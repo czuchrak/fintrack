@@ -12,7 +12,7 @@ public abstract class AdminBaseHandler
         Context = context;
     }
 
-    protected async Task CheckIsAdmin(string? userId)
+    protected async Task CheckIsAdmin(string userId)
     {
         var adminId = (await Context.Settings.SingleAsync(x => x.Name == "AdminId")).Value;
         if (userId != adminId)

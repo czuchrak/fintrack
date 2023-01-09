@@ -14,5 +14,5 @@ public class PropertyTransactionModel
 
     public decimal Value { get; set; }
 
-    [StringLength(50)] public string? Details { get; set; }
+    [StringLength(50)] public string Details { get; set; }
 }
