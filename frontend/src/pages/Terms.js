@@ -23,9 +23,7 @@ export default function Terms() {
       </Typography>
       <Title>1. Twórca i właściciel</Title>
       <Text>
-        Twórcą i&nbsp;właścicielem aplikacji jest firma: Krzysztof Czuchra
-        z&nbsp;siedzibą przy ul.&nbsp;Goleszowskiej&nbsp;1/176,
-        01-249&nbsp;Warszawa. NIP: 7010701713.
+        Twórcą i&nbsp;właścicielem aplikacji jest firma: Krzysztof Czuchra, NIP: 7010701713.
       </Text>
       <Title>2. Postanowienia ogólne</Title>
       <Text>
