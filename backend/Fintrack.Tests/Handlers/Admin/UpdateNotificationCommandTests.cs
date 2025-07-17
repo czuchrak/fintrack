@@ -4,17 +4,16 @@ using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Commands.UpdateNotification;
 using Fintrack.App.Functions.Admin.Models;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class UpdateNotificationCommandTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.Notifications.Add(new Notification
@@ -31,9 +30,10 @@ public class UpdateNotificationCommandTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNotificationCommandHandler_UpdateNotification()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new UpdateNotificationCommandHandler(context);
 
@@ -51,46 +51,51 @@ public class UpdateNotificationCommandTests : TestBase
                 },
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var notifications = await context.Notifications.ToListAsync();
 
-        Assert.AreEqual(1, notifications.Count);
-        Assert.IsNotEmpty(notifications[0].Id.ToString());
-        Assert.AreEqual("Test23", notifications[0].Message);
-        Assert.AreEqual("Test11", notifications[0].Type);
-        Assert.AreEqual("Url", notifications[0].Url);
-        Assert.AreEqual(true, notifications[0].IsActive);
+        notifications.Should().HaveCount(1);
+        notifications[0].Id.ToString().Should().NotBeEmpty();
+        notifications[0].Message.Should().Be("Test23");
+        notifications[0].Type.Should().Be("Test11");
+        notifications[0].Url.Should().Be("Url");
+        notifications[0].IsActive.Should().BeTrue();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNotificationCommandHandler_ThrowsException_WhenNotificationDoesNotExist()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new UpdateNotificationCommandHandler(context);
 
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await handler.Handle(new UpdateNotificationCommand
+        var act = async () => await handler.Handle(new UpdateNotificationCommand
+        {
+            Model = new NotificationModel
             {
-                Model = new NotificationModel
-                {
-                    Id = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0")
-                },
-                UserId = UserId
-            }, new CancellationToken()));
+                Id = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0")
+            },
+            UserId = UserId
+        }, new CancellationToken());
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNotificationCommandHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new UpdateNotificationCommandHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new UpdateNotificationCommand { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new UpdateNotificationCommand { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNotificationCommandValidator_ValidatesFields()
     {
         var validator = new UpdateNotificationCommandValidator();
@@ -105,7 +110,7 @@ public class UpdateNotificationCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.Model.Type);
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNotificationCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new UpdateNotificationCommandValidator();

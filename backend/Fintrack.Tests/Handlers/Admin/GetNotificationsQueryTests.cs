@@ -4,16 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Queries.GetNotifications;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class GetNotificationsQueryTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         var id = Guid.NewGuid();
         await using var context = CreateContext();
@@ -37,39 +36,43 @@ public class GetNotificationsQueryTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task GetNotificationsQueryHandler_ReturnsAllNotifications()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new GetNotificationsQueryHandler(context);
 
         var notifications =
-            (await handler.Handle(new GetNotificationsQuery { UserId = UserId }, new CancellationToken()))
+            (await handler.Handle(new GetNotificationsQuery { UserId = UserId }, CancellationToken.None))
             .ToList();
 
-        Assert.AreEqual(1, notifications.Count);
-        Assert.IsNotEmpty(notifications[0].Id.ToString());
-        Assert.IsNotEmpty(notifications[0].Message);
-        Assert.IsNotEmpty(notifications[0].Type);
-        Assert.IsNotEmpty(notifications[0].Url);
-        Assert.NotNull(notifications[0].ValidFrom);
-        Assert.NotNull(notifications[0].ValidUntil);
-        Assert.AreEqual(true, notifications[0].IsActive);
-        Assert.AreEqual(1, notifications[0].UsersCount);
-        Assert.AreEqual(1, notifications[0].ReadCount);
+        notifications.Should().HaveCount(1);
+        notifications[0].Id.ToString().Should().NotBeEmpty();
+        notifications[0].Message.Should().NotBeEmpty();
+        notifications[0].Type.Should().NotBeEmpty();
+        notifications[0].Url.Should().NotBeEmpty();
+        notifications[0].ValidFrom.Should().NotBe(default);
+        notifications[0].ValidUntil.Should().NotBe(default);
+        notifications[0].IsActive.Should().BeTrue();
+        notifications[0].UsersCount.Should().Be(1);
+        notifications[0].ReadCount.Should().Be(1);
     }
 
-    [Test]
+    [Fact]
     public async Task GetNotificationsQueryHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new GetNotificationsQueryHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new GetNotificationsQuery { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new GetNotificationsQuery { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task GetNotificationsQueryValidator_ValidatesUserId()
     {
         var validator = new GetNotificationsQueryValidator();
@@ -77,7 +80,7 @@ public class GetNotificationsQueryTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetNotificationsQueryValidator_ThrowsException_WhenUserIdIsEmpty()
     {
         var validator = new GetNotificationsQueryValidator();

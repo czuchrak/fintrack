@@ -4,21 +4,14 @@ using MediatR;
 
 namespace Fintrack.App.Functions.NetWorth.Commands.AddNetWorthGoal;
 
-public class AddNetWorthGoalCommandHandler : IRequestHandler<AddNetWorthGoalCommand, Unit>
+public class AddNetWorthGoalCommandHandler(DatabaseContext context) : IRequestHandler<AddNetWorthGoalCommand, Unit>
 {
-    private readonly DatabaseContext _context;
-
-    public AddNetWorthGoalCommandHandler(DatabaseContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Unit> Handle(AddNetWorthGoalCommand request, CancellationToken cancellationToken)
     {
         var model = request.Model;
         var userId = request.UserId;
 
-        _context.Add(new NetWorthGoal
+        context.Add(new NetWorthGoal
         {
             UserId = userId,
             Name = model.Name,
@@ -32,7 +25,7 @@ public class AddNetWorthGoalCommandHandler : IRequestHandler<AddNetWorthGoalComm
                 }).ToList()
         });
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }

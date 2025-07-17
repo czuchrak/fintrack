@@ -4,13 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fintrack.App.Functions.Admin.Commands.UpdatePropertyCategory;
 
-public class UpdatePropertyCategoryCommandHandler : AdminBaseHandler,
+public class UpdatePropertyCategoryCommandHandler(DatabaseContext context) : AdminBaseHandler(context),
     IRequestHandler<UpdatePropertyCategoryCommand, Unit>
 {
-    public UpdatePropertyCategoryCommandHandler(DatabaseContext context) : base(context)
-    {
-    }
-
     public async Task<Unit> Handle(UpdatePropertyCategoryCommand request, CancellationToken cancellationToken)
     {
         await CheckIsAdmin(request.UserId);

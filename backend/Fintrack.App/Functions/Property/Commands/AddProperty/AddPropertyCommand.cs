@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Fintrack.App.Functions.Property.Commands.AddProperty;
 
-public class AddPropertyCommand : RequestBase, IRequest
+public class AddPropertyCommand : RequestBase, IRequest<Unit>
 {
     public PropertyModel Model { get; set; }
 }

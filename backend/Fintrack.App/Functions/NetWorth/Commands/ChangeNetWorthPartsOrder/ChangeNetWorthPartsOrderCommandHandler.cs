@@ -4,20 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fintrack.App.Functions.NetWorth.Commands.ChangeNetWorthPartsOrder;
 
-public class ChangeNetWorthPartsOrderCommandHandler : IRequestHandler<ChangeNetWorthPartsOrderCommand, Unit>
+public class ChangeNetWorthPartsOrderCommandHandler(DatabaseContext context)
+    : IRequestHandler<ChangeNetWorthPartsOrderCommand, Unit>
 {
-    private readonly DatabaseContext _context;
-
-    public ChangeNetWorthPartsOrderCommandHandler(DatabaseContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Unit> Handle(ChangeNetWorthPartsOrderCommand request, CancellationToken cancellationToken)
     {
         var userId = request.UserId;
 
-        var parts = await _context.NetWorthParts
+        var parts = await context.NetWorthParts
             .Where(x => x.UserId == userId)
             .ToListAsync(cancellationToken);
 
@@ -29,8 +23,8 @@ public class ChangeNetWorthPartsOrderCommandHandler : IRequestHandler<ChangeNetW
             part.Order = order++;
         }
 
-        _context.UpdateRange(parts);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.UpdateRange(parts);
+        await context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }

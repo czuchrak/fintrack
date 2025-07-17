@@ -4,16 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Queries.GetLogs;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class GetLogsQueryTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.Logs.Add(new Log
@@ -27,33 +26,36 @@ public class GetLogsQueryTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task GetLogsQueryHandler_ReturnsAllLogs()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new GetLogsQueryHandler(context);
 
-        var logs = (await handler.Handle(new GetLogsQuery { UserId = UserId }, new CancellationToken())).ToList();
+        var logs = (await handler.Handle(new GetLogsQuery { UserId = UserId }, CancellationToken.None)).ToList();
 
-        Assert.AreEqual(1, logs.Count);
-        Assert.AreEqual(1, logs[0].Id);
-        Assert.AreEqual("Information", logs[0].Level);
-        Assert.IsNotEmpty(logs[0].Message);
-        Assert.IsNotEmpty(logs[0].Exception);
-        Assert.IsNotNull(logs[0].Timestamp);
+        logs.Should().HaveCount(1);
+        logs[0].Id.Should().Be(1);
+        logs[0].Level.Should().Be("Information");
+        logs[0].Message.Should().NotBeEmpty();
+        logs[0].Exception.Should().NotBeEmpty();
+        logs[0].Timestamp.Should().NotBe(default);
     }
 
-    [Test]
+    [Fact]
     public async Task GetLogsQueryHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new GetLogsQueryHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new GetLogsQuery { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () => await handler.Handle(new GetLogsQuery { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task GetLogsQueryValidator_ValidatesUserId()
     {
         var validator = new GetLogsQueryValidator();
@@ -61,7 +63,7 @@ public class GetLogsQueryTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetLogsQueryValidator_ThrowsException_WhenUserIdIsEmpty()
     {
         var validator = new GetLogsQueryValidator();

@@ -3,17 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Commands.DeleteNotification;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class DeleteNotificationCommandTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         var id = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B4");
         await using var context = CreateContext();
@@ -32,9 +31,10 @@ public class DeleteNotificationCommandTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteNotificationCommandHandler_DeleteNotification()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new DeleteNotificationCommandHandler(context);
 
@@ -43,38 +43,43 @@ public class DeleteNotificationCommandTests : TestBase
                 NotificationId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B4"),
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var notifications = await context.Notifications.ToListAsync();
 
-        Assert.AreEqual(0, notifications.Count);
+        notifications.Should().HaveCount(0);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteNotificationCommandHandler_ThrowsException_WhenNotificationDoesNotExist()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new DeleteNotificationCommandHandler(context);
 
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await handler.Handle(new DeleteNotificationCommand
-            {
-                NotificationId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0"),
-                UserId = UserId
-            }, new CancellationToken()));
+        var act = async () => await handler.Handle(new DeleteNotificationCommand
+        {
+            NotificationId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0"),
+            UserId = UserId
+        }, new CancellationToken());
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteNotificationCommandHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new DeleteNotificationCommandHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new DeleteNotificationCommand { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new DeleteNotificationCommand { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteNotificationCommandValidator_ValidatesFields()
     {
         var validator = new DeleteNotificationCommandValidator();
@@ -87,7 +92,7 @@ public class DeleteNotificationCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.NotificationId);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteNotificationCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new DeleteNotificationCommandValidator();

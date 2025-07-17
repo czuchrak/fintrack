@@ -3,17 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Commands.DuplicateNotification;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class DuplicateNotificationCommandTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.Notifications.Add(new Notification
@@ -30,9 +29,10 @@ public class DuplicateNotificationCommandTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task DuplicateNotificationCommandHandler_DuplicateNotification()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new DuplicateNotificationCommandHandler(context);
 
@@ -41,43 +41,48 @@ public class DuplicateNotificationCommandTests : TestBase
                 NotificationId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B4"),
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var notifications = await context.Notifications.ToListAsync();
 
-        Assert.AreEqual(2, notifications.Count);
-        Assert.IsNotEmpty(notifications[0].Id.ToString());
-        Assert.IsNotEmpty(notifications[0].Message);
-        Assert.IsNotEmpty(notifications[0].Type);
-        Assert.IsNotEmpty(notifications[0].Url);
-        Assert.AreEqual(false, notifications[0].IsActive);
+        notifications.Should().HaveCount(2);
+        notifications[0].Id.ToString().Should().NotBeEmpty();
+        notifications[0].Message.Should().NotBeEmpty();
+        notifications[0].Type.Should().NotBeEmpty();
+        notifications[0].Url.Should().NotBeEmpty();
+        notifications[0].IsActive.Should().BeFalse();
     }
 
-    [Test]
+    [Fact]
     public async Task DuplicateNotificationCommandHandler_ThrowsException_WhenNotificationDoesNotExist()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new DuplicateNotificationCommandHandler(context);
 
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await handler.Handle(new DuplicateNotificationCommand
-            {
-                NotificationId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0"),
-                UserId = UserId
-            }, new CancellationToken()));
+        var act = async () => await handler.Handle(new DuplicateNotificationCommand
+        {
+            NotificationId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0"),
+            UserId = UserId
+        }, new CancellationToken());
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task DuplicateNotificationCommandHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new DuplicateNotificationCommandHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new DuplicateNotificationCommand { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new DuplicateNotificationCommand { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task DuplicateNotificationCommandValidator_ValidatesFields()
     {
         var validator = new DuplicateNotificationCommandValidator();
@@ -90,7 +95,7 @@ public class DuplicateNotificationCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.NotificationId);
     }
 
-    [Test]
+    [Fact]
     public async Task DuplicateNotificationCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new DuplicateNotificationCommandValidator();

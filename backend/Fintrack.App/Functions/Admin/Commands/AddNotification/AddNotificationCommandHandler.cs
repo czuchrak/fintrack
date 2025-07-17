@@ -4,12 +4,9 @@ using MediatR;
 
 namespace Fintrack.App.Functions.Admin.Commands.AddNotification;
 
-public class AddNotificationCommandHandler : AdminBaseHandler, IRequestHandler<AddNotificationCommand, Unit>
+public class AddNotificationCommandHandler(DatabaseContext context)
+    : AdminBaseHandler(context), IRequestHandler<AddNotificationCommand, Unit>
 {
-    public AddNotificationCommandHandler(DatabaseContext context) : base(context)
-    {
-    }
-
     public async Task<Unit> Handle(AddNotificationCommand request, CancellationToken cancellationToken)
     {
         await CheckIsAdmin(request.UserId);

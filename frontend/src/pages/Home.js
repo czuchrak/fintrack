@@ -264,6 +264,12 @@ export default function Home() {
                 miesiąca. I&nbsp;to wszystko! 5&nbsp;minut miesięcznie pozwoli
                 Ci trzymać cały Twój majątek pod kontrolą.
               </Typography>
+              <br />
+              <Typography variant="body2" sx={{ pl: 5, pr: 5 }}>
+                Możesz w każdej chwili wyeksportować lub zaimportować swoje dane
+                w ustawieniach. Dzięki temu łatwo przeniesiesz dane między
+                kontami lub wykonasz kopię zapasową.
+              </Typography>
             </Grid>
             <Grid item xs={12} md={6}>
               <Card sx={{ padding: "2%" }} data-aos="fade-left">

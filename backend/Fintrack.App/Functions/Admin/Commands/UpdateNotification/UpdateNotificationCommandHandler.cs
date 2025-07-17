@@ -4,12 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fintrack.App.Functions.Admin.Commands.UpdateNotification;
 
-public class UpdateNotificationCommandHandler : AdminBaseHandler, IRequestHandler<UpdateNotificationCommand, Unit>
+public class UpdateNotificationCommandHandler(DatabaseContext context)
+    : AdminBaseHandler(context), IRequestHandler<UpdateNotificationCommand, Unit>
 {
-    public UpdateNotificationCommandHandler(DatabaseContext context) : base(context)
-    {
-    }
-
     public async Task<Unit> Handle(UpdateNotificationCommand request, CancellationToken cancellationToken)
     {
         await CheckIsAdmin(request.UserId);

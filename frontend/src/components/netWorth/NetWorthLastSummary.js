@@ -1,10 +1,10 @@
-import {Card, Divider, Grid, Typography} from "@mui/material";
-import {styled} from "@mui/material/styles";
-import {getMonthAndYear} from "../../utils/helpers";
-import React, {useMemo} from "react";
-import {DecimalLabel} from "../Label";
+import { Card, Divider, Grid, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { getMonthAndYear } from "../../utils/helpers";
+import React, { useMemo } from "react";
+import { DecimalLabel } from "../Label";
 import Scrollbar from "../Scrollbar";
-import {InlineIcon} from "@iconify/react";
+import { InlineIcon } from "@iconify/react";
 import arrowForward from "@iconify/icons-eva/arrow-forward-outline";
 import EmptyState from "../utilities/EmptyState";
 import HourglassBottomRoundedIcon from "@mui/icons-material/HourglassBottomRounded";
@@ -108,6 +108,7 @@ export default function NetWorthLastSummary({ data, lastEntry, last2Entry }) {
               title="Ostatnie zmiany"
               icon={HourglassBottomRoundedIcon}
               text="Uzupełnij wartości składników jeszcze raz, aby&nbsp;zobaczyć ostatnie zmiany"
+              showImportButton={false}
             />
           )}
         </RootStyle>

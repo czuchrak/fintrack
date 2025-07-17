@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Fintrack.App.Functions.Property.Commands.UpdateProperty;
 
-public class UpdatePropertyCommand : RequestBase, IRequest
+public class UpdatePropertyCommand : RequestBase, IRequest<Unit>
 {
     public PropertyModel Model { get; set; }
 }

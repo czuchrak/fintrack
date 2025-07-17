@@ -4,12 +4,9 @@ using MediatR;
 
 namespace Fintrack.App.Functions.Admin.Commands.AddPropertyCategory;
 
-public class AddPropertyCategoryCommandHandler : AdminBaseHandler, IRequestHandler<AddPropertyCategoryCommand, Unit>
+public class AddPropertyCategoryCommandHandler(DatabaseContext context)
+    : AdminBaseHandler(context), IRequestHandler<AddPropertyCategoryCommand, Unit>
 {
-    public AddPropertyCategoryCommandHandler(DatabaseContext context) : base(context)
-    {
-    }
-
     public async Task<Unit> Handle(AddPropertyCategoryCommand request, CancellationToken cancellationToken)
     {
         await CheckIsAdmin(request.UserId);

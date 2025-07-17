@@ -3,12 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fintrack.Database;
 
-public class DatabaseContext : DbContext
+public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
-    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
-    {
-    }
-
     public DbSet<Setting> Settings { get; set; }
     public DbSet<Log> Logs { get; set; }
     public DbSet<Notification> Notifications { get; set; }

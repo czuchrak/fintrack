@@ -34,6 +34,7 @@ export {
   addPropertyCategory,
   updatePropertyCategory,
   getExchangeRates,
+  fillExchangeRates,
 } from "./AdminService";
 
 export {

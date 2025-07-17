@@ -1,8 +1,13 @@
-import {Box, Card, Divider, Grid, Tooltip, Typography} from "@mui/material";
+import { Box, Card, Divider, Grid, Tooltip, Typography } from "@mui/material";
 import Carousel from "react-material-ui-carousel";
-import {getCurrencyFormatter, getGoalSummary, getMonth3AndYear, getMonthAndYear,} from "../../utils/helpers";
-import {styled} from "@mui/material/styles";
-import {useMemo} from "react";
+import {
+  getCurrencyFormatter,
+  getGoalSummary,
+  getMonth3AndYear,
+  getMonthAndYear,
+} from "../../utils/helpers";
+import { styled } from "@mui/material/styles";
+import { useMemo } from "react";
 import SavingsRoundedIcon from "@mui/icons-material/SavingsRounded";
 import EmptyState from "../utilities/EmptyState";
 // ----------------------------------------------------------------------
@@ -31,6 +36,7 @@ export default function NetWorthGoalsSummary({ data, lastEntry }) {
               text="Nie masz dodanych żadnych celów."
               buttonText="Zdefiniuj swój pierwszy cel"
               buttonUrl="/networth/goals"
+              showImportButton={false}
             />
           ) : data.goals.length === 1 ? (
             <GoalSummary

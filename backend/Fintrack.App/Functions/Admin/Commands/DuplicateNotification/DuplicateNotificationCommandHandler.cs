@@ -5,12 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fintrack.App.Functions.Admin.Commands.DuplicateNotification;
 
-public class DuplicateNotificationCommandHandler : AdminBaseHandler, IRequestHandler<DuplicateNotificationCommand, Unit>
+public class DuplicateNotificationCommandHandler(DatabaseContext context)
+    : AdminBaseHandler(context), IRequestHandler<DuplicateNotificationCommand, Unit>
 {
-    public DuplicateNotificationCommandHandler(DatabaseContext context) : base(context)
-    {
-    }
-
     public async Task<Unit> Handle(DuplicateNotificationCommand request, CancellationToken cancellationToken)
     {
         await CheckIsAdmin(request.UserId);

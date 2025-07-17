@@ -25,44 +25,56 @@ public class FillExchangeRatesCommandHandler : IRequestHandler<FillExchangeRates
 
     public async Task<Unit> Handle(FillExchangeRatesCommand request, CancellationToken cancellationToken)
     {
+        if (request.FillAll) await FillRates(DateTime.Parse("2020-01-01"), DateTime.Now, cancellationToken);
+
         var lastRate = await _context.ExchangeRates
             .OrderByDescending(x => x.Date)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (lastRate == null || DateTime.Now.Date != lastRate.Date) await FillRates(cancellationToken);
+        if (lastRate == null || DateTime.Now.Date != lastRate.Date)
+            await FillRates(DateTime.Now.AddDays(-LastDays).Date, DateTime.Now, cancellationToken);
 
         return Unit.Value;
     }
 
-    private async Task FillRates(CancellationToken cancellationToken)
+    private async Task FillRates(DateTime from, DateTime to, CancellationToken cancellationToken)
     {
-        var from = DateTime.Now.AddDays(-LastDays).Date;
-        var to = DateTime.Now;
+        const int maxDays = 90;
+        var currentFrom = from;
 
-        var tables = await _nbpHttpClient.GetRates(from, to);
+        while (currentFrom <= to)
+        {
+            var currentTo = currentFrom.AddDays(maxDays - 1);
+            if (currentTo > to) currentTo = to;
 
-        var currencies = await _context.Currencies
-            .Where(x => x.Code != "PLN")
-            .ToListAsync(cancellationToken);
+            var tables = await _nbpHttpClient.GetRates(currentFrom, currentTo);
 
-        var dbRates = await _context.ExchangeRates
-            .Where(x => x.Date >= from && x.Date <= to)
-            .ToListAsync(cancellationToken);
+            var currencies = await _context.Currencies
+                .Where(x => x.Code != "PLN")
+                .ToListAsync(cancellationToken);
 
-        foreach (var table in tables)
-        foreach (var currency in currencies
-                     .Where(currency =>
-                         !dbRates.Any(x =>
-                             x.Date.Date == table.EffectiveDate.Date &&
-                             x.Currency == currency.Code)))
-            _context.ExchangeRates.Add(new ExchangeRate
-            {
-                Date = table.EffectiveDate,
-                Currency = currency.Code,
-                Rate = table.Rates.First(x => x.Code == currency.Code).Mid
-            });
+            var dbRates = await _context.ExchangeRates
+                .Where(x => x.Date >= currentFrom && x.Date <= currentTo)
+                .ToListAsync(cancellationToken);
 
-        if (await _context.SaveChangesAsync(cancellationToken) > 0)
-            _logger.LogInformation("Last rates have been refreshed");
+            foreach (var table in tables)
+            foreach (var currency in currencies
+                         .Where(currency =>
+                             !dbRates.Any(x =>
+                                 x.Date.Date == table.EffectiveDate.Date &&
+                                 x.Currency == currency.Code)))
+                _context.ExchangeRates.Add(new ExchangeRate
+                {
+                    Date = table.EffectiveDate,
+                    Currency = currency.Code,
+                    Rate = table.Rates.First(x => x.Code == currency.Code).Mid
+                });
+
+            if (await _context.SaveChangesAsync(cancellationToken) > 0)
+                _logger.LogInformation("Rates from {CurrentFrom} to {CurrentTo} have been refreshed", currentFrom,
+                    currentTo);
+
+            currentFrom = currentTo.AddDays(1);
+        }
     }
 }

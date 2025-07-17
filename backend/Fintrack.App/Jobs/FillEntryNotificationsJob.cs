@@ -4,17 +4,10 @@ using Quartz;
 
 namespace Fintrack.App.Jobs;
 
-public class FillEntryNotificationsJob : IJob
+public class FillEntryNotificationsJob(IMediator mediator) : IJob
 {
-    private readonly IMediator _mediator;
-
-    public FillEntryNotificationsJob(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     public async Task Execute(IJobExecutionContext context)
     {
-        await _mediator.Send(new FillEntryNotificationsCommand());
+        await mediator.Send(new FillEntryNotificationsCommand());
     }
 }

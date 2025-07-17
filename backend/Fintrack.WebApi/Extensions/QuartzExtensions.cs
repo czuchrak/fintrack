@@ -19,7 +19,6 @@ public static class QuartzExtensions
             q.AddJob<FillExchangeRatesJob>(settings.FillExchangeRatesJob2Cron, "-2");
             q.AddJob<RemoveUnnecessaryRatesJob>(settings.RemoveUnnecessaryRatesJobCron);
             q.AddJob<FillEntryNotificationsJob>(settings.FillEntryNotificationsJobCron);
-            q.AddJob<SendStatusMailJob>(settings.SendStatusMailJobCron);
             q.AddJob<KeepAppJob>(settings.KeepAppJobCron);
         });
 

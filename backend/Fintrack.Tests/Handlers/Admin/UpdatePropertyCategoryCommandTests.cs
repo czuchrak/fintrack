@@ -4,17 +4,16 @@ using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Commands.UpdatePropertyCategory;
 using Fintrack.App.Functions.Admin.Models;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class UpdatePropertyCategoryCommandTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.PropertyCategories.Add(new PropertyCategory
@@ -28,9 +27,10 @@ public class UpdatePropertyCategoryCommandTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdatePropertyCategoryCommandHandler_UpdatePropertyCategory()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new UpdatePropertyCategoryCommandHandler(context);
 
@@ -45,45 +45,50 @@ public class UpdatePropertyCategoryCommandTests : TestBase
                 },
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var categories = await context.PropertyCategories.ToListAsync();
 
-        Assert.AreEqual(1, categories.Count);
-        Assert.IsNotEmpty(categories[0].Id.ToString());
-        Assert.AreEqual("Test23", categories[0].Name);
-        Assert.AreEqual("Test11", categories[0].Type);
-        Assert.AreEqual(true, categories[0].IsCost);
+        categories.Should().HaveCount(1);
+        categories[0].Id.ToString().Should().NotBeEmpty();
+        categories[0].Name.Should().Be("Test23");
+        categories[0].Type.Should().Be("Test11");
+        categories[0].IsCost.Should().BeTrue();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdatePropertyCategoryCommandHandler_ThrowsException_WhenPropertyCategoryDoesNotExist()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new UpdatePropertyCategoryCommandHandler(context);
 
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await handler.Handle(new UpdatePropertyCategoryCommand
+        var act = async () => await handler.Handle(new UpdatePropertyCategoryCommand
+        {
+            Model = new PropertyCategoryModel
             {
-                Model = new PropertyCategoryModel
-                {
-                    Id = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0")
-                },
-                UserId = UserId
-            }, new CancellationToken()));
+                Id = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0")
+            },
+            UserId = UserId
+        }, new CancellationToken());
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdatePropertyCategoryCommandHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new UpdatePropertyCategoryCommandHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new UpdatePropertyCategoryCommand { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new UpdatePropertyCategoryCommand { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdatePropertyCategoryCommandValidator_ValidatesFields()
     {
         var validator = new UpdatePropertyCategoryCommandValidator();
@@ -98,7 +103,7 @@ public class UpdatePropertyCategoryCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.Model.Type);
     }
 
-    [Test]
+    [Fact]
     public async Task UpdatePropertyCategoryCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new UpdatePropertyCategoryCommandValidator();

@@ -3,16 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Commands.AddNotification;
 using Fintrack.App.Functions.Admin.Models;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class AddNotificationCommandTests : TestBase
 {
-    [Test]
+    [Fact]
     public async Task AddNotificationCommandHandler_AddNewNotification()
     {
         await using var context = CreateContext();
@@ -31,32 +31,33 @@ public class AddNotificationCommandTests : TestBase
                 },
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var notifications = await context.Notifications.ToListAsync();
 
-        Assert.AreEqual(1, notifications.Count);
-        Assert.IsNotEmpty(notifications[0].Id.ToString());
-        Assert.IsNotEmpty(notifications[0].Message);
-        Assert.IsNotEmpty(notifications[0].Type);
-        Assert.IsNotEmpty(notifications[0].Url);
-        Assert.NotNull(notifications[0].ValidFrom);
-        Assert.NotNull(notifications[0].ValidUntil);
-        Assert.AreEqual(true, notifications[0].IsActive);
-        Assert.AreEqual(true, notifications[0].IsActive);
+        notifications.Should().HaveCount(1);
+        notifications[0].Id.ToString().Should().NotBeEmpty();
+        notifications[0].Message.Should().NotBeEmpty();
+        notifications[0].Type.Should().NotBeEmpty();
+        notifications[0].Url.Should().NotBeEmpty();
+        notifications[0].ValidFrom.Should().NotBe(default);
+        notifications[0].ValidUntil.Should().NotBe(default);
+        notifications[0].IsActive.Should().BeTrue();
     }
 
-    [Test]
+    [Fact]
     public async Task AddNotificationCommandHandler_ThrowsException_WhenUserIsNotAdmin()
     {
         await using var context = CreateContext();
         var handler = new AddNotificationCommandHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new AddNotificationCommand { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new AddNotificationCommand { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task AddNotificationCommandValidator_ValidatesFields()
     {
         var validator = new AddNotificationCommandValidator();
@@ -67,7 +68,7 @@ public class AddNotificationCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.Model.Type);
     }
 
-    [Test]
+    [Fact]
     public async Task AddNotificationCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new AddNotificationCommandValidator();

@@ -1,9 +1,9 @@
-import {useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {addError} from "src/redux/slices/errorSlice";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addError } from "src/redux/slices/errorSlice";
 import InternalPage from "../../components/InternalPage";
 import useNetWorthServiceActions from "../../serviceActions/NetWorthServiceActions";
-import {Grid} from "@mui/material";
+import { Grid } from "@mui/material";
 import NetWorthGoalSidebar from "../../components/netWorth/NetWorthGoalSidebar";
 import NetWorthGoalCard from "../../components/netWorth/NetWorthGoalCard";
 import EmptyState from "../../components/utilities/EmptyState";
@@ -75,6 +75,7 @@ export default function NetWorthGoals() {
           }
           buttonText="Zdefiniuj swój pierwszy cel"
           buttonOnClick={handleOpenForm}
+          showImportButton={false}
         />
       );
   };
