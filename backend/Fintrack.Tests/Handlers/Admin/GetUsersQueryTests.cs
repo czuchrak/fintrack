@@ -4,16 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Queries.GetUsers;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class GetUsersQueryTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
 
@@ -30,7 +29,7 @@ public class GetUsersQueryTests : TestBase
             UserId = UserId
         });
 
-        context.Properties.Add(new Property
+        context.Properties.Add(new Database.Entities.Property
         {
             UserId = UserId,
             Name = Guid.NewGuid().ToString()
@@ -48,38 +47,41 @@ public class GetUsersQueryTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task GetUsersQueryHandler_ReturnsAllUsers()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new GetUsersQueryHandler(context);
 
-        var users = (await handler.Handle(new GetUsersQuery { UserId = UserId }, new CancellationToken())).ToList();
+        var users = (await handler.Handle(new GetUsersQuery { UserId = UserId }, CancellationToken.None)).ToList();
 
-        Assert.AreEqual(1, users.Count);
-        Assert.IsNotEmpty(users[0].Id);
-        Assert.AreEqual("test", users[0].Name);
-        Assert.IsNotNull(users[0].CreationDate);
-        Assert.IsNotNull(users[0].LastActivity);
-        Assert.AreEqual(true, users[0].NewsEmailEnabled);
-        Assert.AreEqual(true, users[0].NewMonthEmailEnabled);
-        Assert.AreEqual(1, users[0].PartsCount);
-        Assert.AreEqual(1, users[0].PropertiesCount);
-        Assert.AreEqual(1, users[0].EntriesCount);
-        Assert.AreEqual(1, users[0].GoalsCount);
+        users.Should().HaveCount(1);
+        users[0].Id.Should().NotBeEmpty();
+        users[0].Name.Should().Be("test");
+        users[0].CreationDate.Should().NotBe(default);
+        users[0].LastActivity.Should().NotBe(default);
+        users[0].NewsEmailEnabled.Should().BeTrue();
+        users[0].NewMonthEmailEnabled.Should().BeTrue();
+        users[0].PartsCount.Should().Be(1);
+        users[0].PropertiesCount.Should().Be(1);
+        users[0].EntriesCount.Should().Be(1);
+        users[0].GoalsCount.Should().Be(1);
     }
 
-    [Test]
+    [Fact]
     public async Task GetUsersQueryHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new GetUsersQueryHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new GetUsersQuery { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () => await handler.Handle(new GetUsersQuery { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task GetUsersQueryValidator_ValidatesUserId()
     {
         var validator = new GetUsersQueryValidator();
@@ -87,7 +89,7 @@ public class GetUsersQueryTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetUsersQueryValidator_ThrowsException_WhenUserIdIsEmpty()
     {
         var validator = new GetUsersQueryValidator();

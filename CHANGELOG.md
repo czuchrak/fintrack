@@ -1,3 +1,9 @@
+## v1.10.0 (2025-07-20)
+
+#### Features
+
+* Import/export of user data
+
 ## v1.9.1 (2023-01-09)
 
 #### Features

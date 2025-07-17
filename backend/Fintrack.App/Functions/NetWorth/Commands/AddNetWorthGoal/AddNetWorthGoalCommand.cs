@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Fintrack.App.Functions.NetWorth.Commands.AddNetWorthGoal;
 
-public class AddNetWorthGoalCommand : RequestBase, IRequest
+public class AddNetWorthGoalCommand : RequestBase, IRequest<Unit>
 {
     public NetWorthGoalModel Model { get; set; }
 }

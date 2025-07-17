@@ -1,21 +1,32 @@
-import {useEffect, useState} from "react";
-import {Link as RouterLink} from "react-router-dom";
-import {Container, IconButton, Stack, TableCell, TableRow, Typography,} from "@mui/material";
-import {Icon} from "@iconify/react";
+import { useEffect, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import {
+  Container,
+  IconButton,
+  Stack,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { Icon } from "@iconify/react";
 import Page from "src/components/Page";
-import {useAuth} from "src/navigation/PrivateRoute";
-import {getExchangeRates} from "src/services";
+import { useAuth } from "src/navigation/PrivateRoute";
+import { getExchangeRates, fillExchangeRates } from "src/services";
 import moment from "moment";
 import "moment/locale/pl";
 import Loader from "src/components/Loader";
 import arrowBackOutline from "@iconify/icons-eva/arrow-back-outline";
 import SimpleTable from "src/components/SimpleTable";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import { addError, removeError } from "src/redux/slices/errorSlice";
+import { useDispatch } from "react-redux";
 
 // ----------------------------------------------------------------------
 
 export default function ExchangeRates() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
 
   let auth = useAuth();
 
@@ -31,6 +42,19 @@ export default function ExchangeRates() {
     };
     getData();
   }, [auth]);
+
+  const handleRefreshRates = async () => {
+    setIsLoading(true);
+    dispatch(removeError());
+    try {
+      await fillExchangeRates(await auth.getToken());
+      const data = await getExchangeRates(await auth.getToken());
+      setData(data);
+    } catch (error) {
+      dispatch(addError(error));
+    }
+    setIsLoading(false);
+  };
 
   return (
     <>
@@ -53,7 +77,14 @@ export default function ExchangeRates() {
               <Typography variant="h4" gutterBottom>
                 Waluty
               </Typography>
-              <Typography />
+              <IconButton
+                size="large"
+                color="primary"
+                onClick={handleRefreshRates}
+                title="Refresh"
+              >
+                <RefreshIcon />
+              </IconButton>
             </Stack>
             {isLoading || (
               <SimpleTable

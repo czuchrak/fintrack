@@ -4,17 +4,16 @@ using System.Threading.Tasks;
 using Fintrack.App.Functions.NetWorth.Commands.UpdateNetWorthPart;
 using Fintrack.App.Functions.NetWorth.Models;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.NetWorth;
 
-[TestFixture]
 public class UpdateNetWorthPartCommandTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.NetWorthParts.Add(new NetWorthPart
@@ -30,9 +29,10 @@ public class UpdateNetWorthPartCommandTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNetWorthPartCommandHandler_UpdateNetWorthPart()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new UpdateNetWorthPartCommandHandler(context);
 
@@ -47,36 +47,38 @@ public class UpdateNetWorthPartCommandTests : TestBase
                 },
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var parts = await context.NetWorthParts.ToListAsync();
 
-        Assert.AreEqual(1, parts.Count);
-        Assert.IsNotEmpty(parts[0].Id.ToString());
-        Assert.AreEqual("Test123", parts[0].Name);
-        Assert.AreEqual("Liability", parts[0].Type);
-        Assert.AreEqual("PLN", parts[0].Currency);
-        Assert.AreEqual(false, parts[0].IsVisible);
+        parts.Should().HaveCount(1);
+        parts[0].Id.ToString().Should().NotBeEmpty();
+        parts[0].Name.Should().Be("Test123");
+        parts[0].Type.Should().Be("Liability");
+        parts[0].Currency.Should().Be("PLN");
+        parts[0].IsVisible.Should().BeFalse();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNetWorthPartCommandHandler_ThrowsException_WhenNetWorthPartDoesNotExist()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new UpdateNetWorthPartCommandHandler(context);
 
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await handler.Handle(new UpdateNetWorthPartCommand
+        var act = async () => await handler.Handle(new UpdateNetWorthPartCommand
+        {
+            Model = new NetWorthPartModel
             {
-                Model = new NetWorthPartModel
-                {
-                    Id = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0")
-                },
-                UserId = UserId
-            }, new CancellationToken()));
+                Id = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0")
+            },
+            UserId = UserId
+        }, new CancellationToken());
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNetWorthPartCommandValidator_ValidatesFields()
     {
         var validator = new UpdateNetWorthPartCommandValidator();
@@ -92,7 +94,7 @@ public class UpdateNetWorthPartCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.Model.Currency);
     }
 
-    [Test]
+    [Fact]
     public async Task UpdateNetWorthPartCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new UpdateNetWorthPartCommandValidator();

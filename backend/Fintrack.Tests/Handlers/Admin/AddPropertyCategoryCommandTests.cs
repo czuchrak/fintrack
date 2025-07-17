@@ -3,16 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Commands.AddPropertyCategory;
 using Fintrack.App.Functions.Admin.Models;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class AddPropertyCategoryCommandTests : TestBase
 {
-    [Test]
+    [Fact]
     public async Task AddPropertyCategoryCommandHandler_AddNewPropertyCategory()
     {
         await using var context = CreateContext();
@@ -28,28 +28,30 @@ public class AddPropertyCategoryCommandTests : TestBase
                 },
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var categories = await context.PropertyCategories.ToListAsync();
 
-        Assert.AreEqual(1, categories.Count);
-        Assert.IsNotEmpty(categories[0].Id.ToString());
-        Assert.IsNotEmpty(categories[0].Name);
-        Assert.IsNotEmpty(categories[0].Type);
-        Assert.AreEqual(true, categories[0].IsCost);
+        categories.Should().HaveCount(1);
+        categories[0].Id.ToString().Should().NotBeEmpty();
+        categories[0].Name.Should().NotBeEmpty();
+        categories[0].Type.Should().NotBeEmpty();
+        categories[0].IsCost.Should().BeTrue();
     }
 
-    [Test]
+    [Fact]
     public async Task AddPropertyCategoryCommandHandler_ThrowsException_WhenUserIsNotAdmin()
     {
         await using var context = CreateContext();
         var handler = new AddPropertyCategoryCommandHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new AddPropertyCategoryCommand { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new AddPropertyCategoryCommand { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task AddPropertyCategoryCommandValidator_ValidatesFields()
     {
         var validator = new AddPropertyCategoryCommandValidator();
@@ -60,7 +62,7 @@ public class AddPropertyCategoryCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.Model.Type);
     }
 
-    [Test]
+    [Fact]
     public async Task AddPropertyCategoryCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new AddPropertyCategoryCommandValidator();

@@ -3,17 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Commands.DeleteLogs;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class DeleteLogsCommandTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.Logs.Add(new Log
@@ -26,30 +25,34 @@ public class DeleteLogsCommandTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteLogsCommandHandler_RemovesAllLogs()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new DeleteLogsCommandHandler(context);
 
-        await handler.Handle(new DeleteLogsCommand { UserId = UserId }, new CancellationToken());
+        await handler.Handle(new DeleteLogsCommand { UserId = UserId }, CancellationToken.None);
 
         var logs = await context.Logs.ToListAsync();
 
-        Assert.AreEqual(0, logs.Count);
+        logs.Should().HaveCount(0);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteLogsCommandHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new DeleteLogsCommandHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new DeleteLogsCommand { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new DeleteLogsCommand { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteLogsCommandValidator_ValidatesUserId()
     {
         var validator = new DeleteLogsCommandValidator();
@@ -57,7 +60,7 @@ public class DeleteLogsCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteLogsCommandValidator_ThrowsException_WhenUserIdIsEmpty()
     {
         var validator = new DeleteLogsCommandValidator();

@@ -12,8 +12,9 @@ public class TestBase
 
     protected TestBase()
     {
+        var dbName = Guid.NewGuid().ToString();
         _contextOptions = new DbContextOptionsBuilder<DatabaseContext>()
-            .UseInMemoryDatabase("DatabaseContextTests")
+            .UseInMemoryDatabase(dbName)
             .Options;
 
         using var context = new DatabaseContext(_contextOptions);

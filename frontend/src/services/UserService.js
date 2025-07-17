@@ -1,5 +1,5 @@
-import {USER} from "./CONSTANTS";
-import {axiosDelete, axiosGet, axiosPost} from "./AxiosBase";
+import { USER } from "./CONSTANTS";
+import { axiosDelete, axiosGet, axiosPost } from "./AxiosBase";
 
 export const getUser = async (token) => {
   return await axiosGet(USER(), token);
@@ -28,4 +28,16 @@ export const setUserSetting = async (name, value, token) => {
 
 export const setMailVerificationSent = async (token) => {
   return await axiosPost(USER("mailVerificationSent"), null, token);
+};
+
+export const exportUserData = async (token) => {
+  return await axiosGet(USER("export"), token, { responseType: "text" });
+};
+
+export const importUserData = async (file, token) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return await axiosPost(USER("import"), formData, token, null, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 };

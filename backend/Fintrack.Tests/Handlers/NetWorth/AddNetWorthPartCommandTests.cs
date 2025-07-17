@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using Fintrack.App.Functions.NetWorth.Commands.AddNetWorthPart;
 using Fintrack.App.Functions.NetWorth.Models;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.NetWorth;
 
-[TestFixture]
 public class AddNetWorthPartCommandTests : TestBase
 {
-    [Test]
+    [Fact]
     public async Task AddNetWorthPartCommandHandler_AddNewNetWorthPart()
     {
         await using var context = CreateContext();
@@ -31,20 +31,20 @@ public class AddNetWorthPartCommandTests : TestBase
                 IsVisible = true
             },
             UserId = UserId
-        }, new CancellationToken());
+        }, CancellationToken.None);
 
         var parts = await context.NetWorthParts.ToListAsync();
 
-        Assert.AreEqual(1, parts.Count);
-        Assert.IsNotEmpty(parts[0].Id.ToString());
-        Assert.IsNotEmpty(parts[0].Name);
-        Assert.AreEqual("Asset", parts[0].Type);
-        Assert.AreEqual("PLN", parts[0].Currency);
-        Assert.True(parts[0].IsVisible);
-        Assert.AreEqual(1, parts[0].Order);
+        parts.Should().HaveCount(1);
+        parts[0].Id.ToString().Should().NotBeEmpty();
+        parts[0].Name.Should().NotBeEmpty();
+        parts[0].Type.Should().Be("Asset");
+        parts[0].Currency.Should().Be("PLN");
+        parts[0].IsVisible.Should().BeTrue();
+        parts[0].Order.Should().Be(1);
     }
 
-    [Test]
+    [Fact]
     public async Task AddNetWorthPartCommandHandler_AddNewNetWorthPartWithCorrectOrder()
     {
         await using var context = CreateContext();
@@ -72,16 +72,16 @@ public class AddNetWorthPartCommandTests : TestBase
                 IsVisible = true
             },
             UserId = UserId
-        }, new CancellationToken());
+        }, CancellationToken.None);
 
         var parts = await context.NetWorthParts.OrderBy(x => x.Order).ToListAsync();
 
-        Assert.AreEqual(2, parts.Count);
-        Assert.AreEqual(1, parts[0].Order);
-        Assert.AreEqual(2, parts[1].Order);
+        parts.Should().HaveCount(2);
+        parts[0].Order.Should().Be(1);
+        parts[1].Order.Should().Be(2);
     }
 
-    [Test]
+    [Fact]
     public async Task AddNetWorthPartCommandValidator_ValidatesFields()
     {
         var validator = new AddNetWorthPartCommandValidator();
@@ -93,7 +93,7 @@ public class AddNetWorthPartCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.Model.Currency);
     }
 
-    [Test]
+    [Fact]
     public async Task AddNetWorthPartCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new AddNetWorthPartCommandValidator();

@@ -4,15 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fintrack.App.Functions.Property.Commands.RemovePropertyTransaction;
 
-public class RemovePropertyTransactionCommandHandler : IRequestHandler<RemovePropertyTransactionCommand, Unit>
+public class RemovePropertyTransactionCommandHandler(DatabaseContext context)
+    : IRequestHandler<RemovePropertyTransactionCommand, Unit>
 {
-    private readonly DatabaseContext _context;
-
-    public RemovePropertyTransactionCommandHandler(DatabaseContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Unit> Handle(RemovePropertyTransactionCommand request, CancellationToken cancellationToken)
     {
         var propertyId = request.PropertyId;
@@ -20,15 +14,15 @@ public class RemovePropertyTransactionCommandHandler : IRequestHandler<RemovePro
         var userId = request.UserId;
 
         var property =
-            await _context.Properties
+            await context.Properties
                 .SingleAsync(x => x.Id == propertyId && x.UserId == userId, cancellationToken);
 
-        var propertyTransaction = await _context.PropertyTransactions
+        var propertyTransaction = await context.PropertyTransactions
             .SingleAsync(x => x.Id == transactionId && x.PropertyId == property.Id, cancellationToken);
 
-        _context.PropertyTransactions.Remove(propertyTransaction);
+        context.PropertyTransactions.Remove(propertyTransaction);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }

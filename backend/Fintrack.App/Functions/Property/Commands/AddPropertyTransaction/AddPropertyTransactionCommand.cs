@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Fintrack.App.Functions.Property.Commands.AddPropertyTransaction;
 
-public class AddPropertyTransactionCommand : RequestBase, IRequest
+public class AddPropertyTransactionCommand : RequestBase, IRequest<Unit>
 {
-    public PropertyTransactionModel Model { get; set; }
+    public PropertyTransactionModel Model { get; init; }
 }

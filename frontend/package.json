@@ -1,6 +1,6 @@
 {
   "name": "fintrack",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "private": true,
   "scripts": {
     "start": "rimraf ./build && env-cmd -f .env.development react-scripts start",

@@ -4,16 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Admin.Queries.GetExchangeRates;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Admin;
 
-[TestFixture]
 public class GetExchangeRatesQueryTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.ExchangeRates.Add(new ExchangeRate
@@ -26,31 +25,36 @@ public class GetExchangeRatesQueryTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task GetExchangeRatesQueryHandler_ReturnsAllExchangeRates()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new GetExchangeRatesQueryHandler(context);
 
-        var exchangeRates = (await handler.Handle(new GetExchangeRatesQuery { UserId = UserId }, new CancellationToken())).ToList();
+        var exchangeRates =
+            (await handler.Handle(new GetExchangeRatesQuery { UserId = UserId }, CancellationToken.None)).ToList();
 
-        Assert.AreEqual(1, exchangeRates.Count);
-        Assert.AreEqual("PLN", exchangeRates[0].Currency);
-        Assert.AreEqual(5.1234M, exchangeRates[0].Rate);
-        Assert.IsNotNull(exchangeRates[0].Date);
+        exchangeRates.Should().HaveCount(1);
+        exchangeRates[0].Currency.Should().Be("PLN");
+        exchangeRates[0].Rate.Should().Be(5.1234M);
+        exchangeRates[0].Date.Should().NotBe(default);
     }
 
-    [Test]
+    [Fact]
     public async Task GetExchangeRatesQueryHandler_ThrowsException_WhenUserIsNotAdmin()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new GetExchangeRatesQueryHandler(context);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await handler.Handle(new GetExchangeRatesQuery { UserId = "Wrong_id" }, new CancellationToken()));
+        var act = async () =>
+            await handler.Handle(new GetExchangeRatesQuery { UserId = "Wrong_id" }, new CancellationToken());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
-    [Test]
+    [Fact]
     public async Task GetExchangeRatesQueryValidator_ValidatesUserId()
     {
         var validator = new GetExchangeRatesQueryValidator();
@@ -58,7 +62,7 @@ public class GetExchangeRatesQueryTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetExchangeRatesQueryValidator_ThrowsException_WhenUserIdIsEmpty()
     {
         var validator = new GetExchangeRatesQueryValidator();

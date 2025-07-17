@@ -11,15 +11,10 @@ public interface IMailSender
     Task SendStatusMessage(string message, CancellationToken cancellationToken);
 }
 
-public class MailSender : IMailSender
+public class MailSender(IOptions<MailSettings> mailSettingsAccessor) : IMailSender
 {
     private const string AppName = "Fintrack.app";
-    private readonly MailSettings _mailSettings;
-
-    public MailSender(IOptions<MailSettings> mailSettingsAccessor)
-    {
-        _mailSettings = mailSettingsAccessor.Value;
-    }
+    private readonly MailSettings _mailSettings = mailSettingsAccessor.Value;
 
     public async Task SendStatusMessage(string message, CancellationToken cancellationToken)
     {

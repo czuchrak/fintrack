@@ -5,21 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fintrack.App.Functions.Property.Commands.AddPropertyTransaction;
 
-public class AddPropertyTransactionCommandHandler : IRequestHandler<AddPropertyTransactionCommand, Unit>
+public class AddPropertyTransactionCommandHandler(DatabaseContext context)
+    : IRequestHandler<AddPropertyTransactionCommand, Unit>
 {
-    private readonly DatabaseContext _context;
-
-    public AddPropertyTransactionCommandHandler(DatabaseContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Unit> Handle(AddPropertyTransactionCommand request, CancellationToken cancellationToken)
     {
         var userId = request.UserId;
         var model = request.Model;
 
-        var property = await _context.Properties
+        var property = await context.Properties
             .SingleAsync(x => x.Id == model.PropertyId && x.UserId == userId, cancellationToken);
 
         var propertyTransaction = new PropertyTransaction
@@ -31,8 +25,8 @@ public class AddPropertyTransactionCommandHandler : IRequestHandler<AddPropertyT
             Details = model.Details
         };
 
-        _context.Add(propertyTransaction);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Add(propertyTransaction);
+        await context.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;
     }

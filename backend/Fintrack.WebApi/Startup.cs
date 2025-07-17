@@ -41,7 +41,11 @@ public class Startup
 
         services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp"; });
 
-        services.AddMediatR(AssemblyClass.Assembly);
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(AssemblyClass.Assembly);
+            cfg.LicenseKey = Configuration["MediatRLicense"];
+        });
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         services.AddValidatorsFromAssembly(AssemblyClass.Assembly);
 

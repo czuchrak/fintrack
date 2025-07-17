@@ -7,41 +7,16 @@ using Fintrack.App.Functions.Worker.Commands.FillExchangeRates;
 using Fintrack.App.HttpClients;
 using Fintrack.App.Models;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Worker;
 
-[TestFixture]
 public class FillExchangeRatesCommandHandlerTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
-    {
-        await using var context = CreateContext();
-
-        context.ExchangeRates.AddRange(new ExchangeRate
-            {
-                Currency = "EUR", Date = DateTime.Now.AddDays(-1).Date, Rate = 5.1234M
-            },
-            new ExchangeRate
-            {
-                Currency = "USD", Date = DateTime.Now.AddDays(-1).Date, Rate = 5.4321M
-            },
-            new ExchangeRate
-            {
-                Currency = "GBP", Date = DateTime.Now.AddDays(-1).Date, Rate = 5.2134M
-            },
-            new ExchangeRate
-            {
-                Currency = "CHF", Date = DateTime.Now.AddDays(-1).Date, Rate = 5.3142M
-            });
-
-        await context.SaveChangesAsync();
-    }
-
     private static readonly IEnumerable<RateTable> RatesResult = new List<RateTable>
     {
         new()
@@ -68,9 +43,34 @@ public class FillExchangeRatesCommandHandlerTests : TestBase
         }
     };
 
-    [Test]
+    private async Task InitializeAsync()
+    {
+        await using var context = CreateContext();
+
+        context.ExchangeRates.AddRange(new ExchangeRate
+            {
+                Currency = "EUR", Date = DateTime.Now.AddDays(-1).Date, Rate = 5.1234M
+            },
+            new ExchangeRate
+            {
+                Currency = "USD", Date = DateTime.Now.AddDays(-1).Date, Rate = 5.4321M
+            },
+            new ExchangeRate
+            {
+                Currency = "GBP", Date = DateTime.Now.AddDays(-1).Date, Rate = 5.2134M
+            },
+            new ExchangeRate
+            {
+                Currency = "CHF", Date = DateTime.Now.AddDays(-1).Date, Rate = 5.3142M
+            });
+
+        await context.SaveChangesAsync();
+    }
+
+    [Fact]
     public async Task Handle_FillsExchangeRatesInDbFromNbpApi()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var loggerMock = new Mock<ILogger<FillExchangeRatesCommandHandler>>();
         loggerMock.Setup(x => x.Log(
@@ -89,21 +89,21 @@ public class FillExchangeRatesCommandHandlerTests : TestBase
 
         var handler = new FillExchangeRatesCommandHandler(context, nbpHttpClient.Object, loggerMock.Object);
 
-        await handler.Handle(new FillExchangeRatesCommand(), new CancellationToken());
+        await handler.Handle(new FillExchangeRatesCommand(), CancellationToken.None);
 
         var rates = await context.ExchangeRates.ToListAsync();
         var todayRates = rates.Where(x => x.Date == DateTime.Now.Date).ToList();
 
-        Assert.AreEqual(8, rates.Count);
-        Assert.AreEqual(4, todayRates.Count);
-        Assert.AreEqual(5.1234M, todayRates.First(x => x.Currency == "EUR").Rate);
-        Assert.AreEqual(DateTime.Now.Date, todayRates.First(x => x.Currency == "EUR").Date);
-        Assert.AreEqual(5.4321M, todayRates.First(x => x.Currency == "USD").Rate);
-        Assert.AreEqual(DateTime.Now.Date, todayRates.First(x => x.Currency == "USD").Date);
-        Assert.AreEqual(5.2134M, todayRates.First(x => x.Currency == "GBP").Rate);
-        Assert.AreEqual(DateTime.Now.Date, todayRates.First(x => x.Currency == "GBP").Date);
-        Assert.AreEqual(5.3142M, todayRates.First(x => x.Currency == "CHF").Rate);
-        Assert.AreEqual(DateTime.Now.Date, todayRates.First(x => x.Currency == "CHF").Date);
+        rates.Should().HaveCount(8);
+        todayRates.Should().HaveCount(4);
+        todayRates.First(x => x.Currency == "EUR").Rate.Should().Be(5.1234M);
+        todayRates.First(x => x.Currency == "EUR").Date.Should().Be(DateTime.Now.Date);
+        todayRates.First(x => x.Currency == "USD").Rate.Should().Be(5.4321M);
+        todayRates.First(x => x.Currency == "USD").Date.Should().Be(DateTime.Now.Date);
+        todayRates.First(x => x.Currency == "GBP").Rate.Should().Be(5.2134M);
+        todayRates.First(x => x.Currency == "GBP").Date.Should().Be(DateTime.Now.Date);
+        todayRates.First(x => x.Currency == "CHF").Rate.Should().Be(5.3142M);
+        todayRates.First(x => x.Currency == "CHF").Date.Should().Be(DateTime.Now.Date);
 
         loggerMock.Verify(
             m => m.Log(

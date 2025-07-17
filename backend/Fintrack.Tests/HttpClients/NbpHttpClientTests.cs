@@ -7,14 +7,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.HttpClients;
 using Fintrack.App.Models;
+using FluentAssertions;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.HttpClients;
 
-[TestFixture]
 public class NbpHttpClientTests : TestBase
 {
     private static readonly IEnumerable<RateTable> RatesResult = new List<RateTable>
@@ -29,7 +29,7 @@ public class NbpHttpClientTests : TestBase
         }
     };
 
-    [Test]
+    [Fact]
     public async Task GetRates_Returns()
     {
         var handlerMock = new Mock<HttpMessageHandler>();
@@ -52,11 +52,11 @@ public class NbpHttpClientTests : TestBase
                 .GetRates(DateTime.Parse("2022-01-01"), DateTime.Parse("2022-01-08")))
             .ToList();
 
-        Assert.NotNull(rates);
-        Assert.AreEqual(1, rates.Count);
-        Assert.AreEqual(DateTime.Parse("2022-01-02"), rates[0].EffectiveDate);
-        Assert.AreEqual(1, rates[0].Rates.Count());
-        Assert.AreEqual("EUR", rates[0].Rates.First().Code);
-        Assert.AreEqual(5.1234M, rates[0].Rates.First().Mid);
+        rates.Should().NotBeNull();
+        rates.Should().HaveCount(1);
+        rates[0].EffectiveDate.Should().Be(DateTime.Parse("2022-01-02"));
+        rates[0].Rates.Should().HaveCount(1);
+        rates[0].Rates.First().Code.Should().Be("EUR");
+        rates[0].Rates.First().Mid.Should().Be(5.1234M);
     }
 }

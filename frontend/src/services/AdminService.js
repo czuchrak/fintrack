@@ -1,5 +1,5 @@
-import {ADMIN} from "./CONSTANTS";
-import {axiosDelete, axiosGet, axiosPost, axiosPut} from "./AxiosBase";
+import { ADMIN } from "./CONSTANTS";
+import { axiosDelete, axiosGet, axiosPost, axiosPut } from "./AxiosBase";
 
 export const getLogs = async (token) => {
   return await axiosGet(ADMIN("logs"), token);
@@ -51,4 +51,8 @@ export const updatePropertyCategory = async (model, token) => {
 
 export const getExchangeRates = async (token) => {
   return await axiosGet(ADMIN("rates"), token);
+};
+
+export const fillExchangeRates = async (token) => {
+  return await axiosPost(ADMIN("rates"), null, token);
 };

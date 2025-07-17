@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Fintrack.App.Functions.Admin.Commands.UpdatePropertyCategory;
 
-public class UpdatePropertyCategoryCommand : RequestBase, IRequest
+public class UpdatePropertyCategoryCommand : RequestBase, IRequest<Unit>
 {
     public PropertyCategoryModel Model { get; set; }
 }

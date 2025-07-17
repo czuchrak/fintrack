@@ -2,6 +2,6 @@ using MediatR;
 
 namespace Fintrack.App.Functions.Worker.Commands.FillEntryNotifications;
 
-public class FillEntryNotificationsCommand : IRequest
+public class FillEntryNotificationsCommand : IRequest<Unit>
 {
 }

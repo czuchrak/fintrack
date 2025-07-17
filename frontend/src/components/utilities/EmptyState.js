@@ -1,5 +1,5 @@
-import {Box, Button, Divider, Typography} from "@mui/material";
-import {Link as RouterLink} from "react-router-dom";
+import { Box, Button, Divider, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 export default function EmptyState({
   title,
@@ -9,6 +9,7 @@ export default function EmptyState({
   buttonUrl,
   buttonText,
   buttonOnClick,
+  showImportButton = true,
 }) {
   return (
     <Box sx={{ height: "100%", minHeight: 200 }}>
@@ -27,9 +28,22 @@ export default function EmptyState({
           {bodyText}
         </Typography>
       )}
+      {showImportButton && (
+        <>
+          <Button
+            variant="outlined"
+            component={RouterLink}
+            to={process.env.PUBLIC_URL + "/settings"}
+            sx={{ mt: 4 }}
+          >
+            Importuj dane
+          </Button>
+          <br />
+        </>
+      )}
       {buttonText &&
         (buttonOnClick ? (
-          <Button variant="outlined" onClick={buttonOnClick} sx={{ mt: 4 }}>
+          <Button variant="outlined" onClick={buttonOnClick} sx={{ mt: 1 }}>
             {buttonText}
           </Button>
         ) : (
@@ -37,7 +51,7 @@ export default function EmptyState({
             variant="outlined"
             component={RouterLink}
             to={process.env.PUBLIC_URL + buttonUrl}
-            sx={{ mt: 4 }}
+            sx={{ mt: 1 }}
           >
             {buttonText}
           </Button>

@@ -3,16 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions;
 using Fintrack.App.Functions.Admin.Commands.DeleteLogs;
+using FluentAssertions;
 using FluentValidation;
 using MediatR;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers;
 
-[TestFixture]
 public class ValidationBehaviorTests : TestBase
 {
-    [Test]
+    [Fact]
     public async Task Handle_FinishesWithoutError()
     {
         await using var context = CreateContext();
@@ -32,13 +32,11 @@ public class ValidationBehaviorTests : TestBase
             );
 
         await validationBehavior.Handle(deleteLogsCommand,
-            () => deleteLogsCommandHandler.Handle(deleteLogsCommand, CancellationToken.None),
+            ct => deleteLogsCommandHandler.Handle(deleteLogsCommand, ct),
             CancellationToken.None);
-
-        Assert.Pass();
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ThrowsException_WhenUserIdIsNull()
     {
         await using var context = CreateContext();
@@ -57,14 +55,14 @@ public class ValidationBehaviorTests : TestBase
                 }
             );
 
-        Assert.ThrowsAsync<ValidationException>(async () => await
-            validationBehavior.Handle(deleteLogsCommand,
-                () => deleteLogsCommandHandler.Handle(deleteLogsCommand, CancellationToken.None),
-                CancellationToken.None)
-        );
+        var act = async () => await validationBehavior.Handle(deleteLogsCommand,
+            ct => deleteLogsCommandHandler.Handle(deleteLogsCommand, ct),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_FinishesWithoutError_WhenNoValidators()
     {
         await using var context = CreateContext();
@@ -79,9 +77,7 @@ public class ValidationBehaviorTests : TestBase
             new ValidationBehavior<DeleteLogsCommand, Unit>(new List<IValidator<DeleteLogsCommand>>());
 
         await validationBehavior.Handle(deleteLogsCommand,
-            () => deleteLogsCommandHandler.Handle(deleteLogsCommand, CancellationToken.None),
+            ct => deleteLogsCommandHandler.Handle(deleteLogsCommand, ct),
             CancellationToken.None);
-
-        Assert.Pass();
     }
 }

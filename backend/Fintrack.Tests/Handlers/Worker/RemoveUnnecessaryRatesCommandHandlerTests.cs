@@ -3,18 +3,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.Worker.Commands.RemoveUnnecessaryRates;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.Worker;
 
-[TestFixture]
 public class RemoveUnnecessaryRatesCommandHandlerTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
 
@@ -34,9 +33,10 @@ public class RemoveUnnecessaryRatesCommandHandlerTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_FillsExchangeRatesInDbFromNbpApi()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var loggerMock = new Mock<ILogger<RemoveUnnecessaryRatesCommandHandler>>();
         loggerMock.Setup(x => x.Log(
@@ -49,11 +49,11 @@ public class RemoveUnnecessaryRatesCommandHandlerTests : TestBase
         );
         var handler = new RemoveUnnecessaryRatesCommandHandler(context, loggerMock.Object);
 
-        await handler.Handle(new RemoveUnnecessaryRatesCommand(), new CancellationToken());
+        await handler.Handle(new RemoveUnnecessaryRatesCommand(), CancellationToken.None);
 
         var rates = await context.ExchangeRates.ToListAsync();
 
-        Assert.AreEqual(2, rates.Count);
+        rates.Should().HaveCount(2);
 
         loggerMock.Verify(
             m => m.Log(

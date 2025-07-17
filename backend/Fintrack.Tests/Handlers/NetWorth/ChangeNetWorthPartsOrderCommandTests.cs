@@ -5,17 +5,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.NetWorth.Commands.ChangeNetWorthPartsOrder;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.NetWorth;
 
-[TestFixture]
 public class ChangeNetWorthPartsOrderCommandTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.NetWorthParts.Add(new NetWorthPart
@@ -40,9 +39,10 @@ public class ChangeNetWorthPartsOrderCommandTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task ChangeNetWorthPartsOrderCommandHandler_ChangeNetWorthPartsOrder()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new ChangeNetWorthPartsOrderCommandHandler(context);
 
@@ -55,34 +55,36 @@ public class ChangeNetWorthPartsOrderCommandTests : TestBase
                 },
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var parts = await context.NetWorthParts.OrderBy(x => x.Order).ToListAsync();
 
-        Assert.AreEqual(2, parts.Count);
-        Assert.AreEqual("3CEA445A-A9D7-4711-AF85-8CC37B1EEBD1", parts[0].Id.ToString().ToUpper());
-        Assert.AreEqual("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B4", parts[1].Id.ToString().ToUpper());
+        parts.Should().HaveCount(2);
+        parts[0].Id.ToString().ToUpper().Should().Be("3CEA445A-A9D7-4711-AF85-8CC37B1EEBD1");
+        parts[1].Id.ToString().ToUpper().Should().Be("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B4");
     }
 
-    [Test]
+    [Fact]
     public async Task ChangeNetWorthPartsOrderCommandHandler_ThrowsException_WhenNetWorthPartDoesNotExist()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new ChangeNetWorthPartsOrderCommandHandler(context);
 
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await handler.Handle(new ChangeNetWorthPartsOrderCommand
+        var act = async () => await handler.Handle(new ChangeNetWorthPartsOrderCommand
+        {
+            PartIds = new List<Guid>
             {
-                PartIds = new List<Guid>
-                {
-                    Guid.Parse("3CEA445A-A9D7-4711-AF85-8CC37B1EEBD0"),
-                    Guid.Parse("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B4")
-                },
-                UserId = UserId
-            }, new CancellationToken()));
+                Guid.Parse("3CEA445A-A9D7-4711-AF85-8CC37B1EEBD0"),
+                Guid.Parse("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B4")
+            },
+            UserId = UserId
+        }, new CancellationToken());
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task ChangeNetWorthPartsOrderCommandValidator_ValidatesFields()
     {
         var validator = new ChangeNetWorthPartsOrderCommandValidator();
@@ -99,7 +101,7 @@ public class ChangeNetWorthPartsOrderCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.PartIds);
     }
 
-    [Test]
+    [Fact]
     public async Task ChangeNetWorthPartsOrderCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new ChangeNetWorthPartsOrderCommandValidator();

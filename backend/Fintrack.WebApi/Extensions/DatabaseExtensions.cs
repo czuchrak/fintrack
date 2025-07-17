@@ -31,14 +31,6 @@ public static class DatabaseExtensions
                 new PropertyCategory { Name = "Przychód z najmu", IsCost = false, Type = "rentalIncome" }
             );
 
-        if (!await context.ExchangeRates.AnyAsync())
-            context.ExchangeRates.AddRange(
-                new ExchangeRate { Currency = "EUR", Date = DateTime.Now, Rate = 4.7M },
-                new ExchangeRate { Currency = "USD", Date = DateTime.Now, Rate = 4.5M },
-                new ExchangeRate { Currency = "GBP", Date = DateTime.Now, Rate = 5.2M },
-                new ExchangeRate { Currency = "CHF", Date = DateTime.Now, Rate = 4.6M }
-            );
-
         if (!await context.Notifications.AnyAsync())
             context.Notifications.Add(
                 new Notification

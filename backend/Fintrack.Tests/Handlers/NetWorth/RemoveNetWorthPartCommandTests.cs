@@ -5,17 +5,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fintrack.App.Functions.NetWorth.Commands.RemoveNetWorthPart;
 using Fintrack.Database.Entities;
+using FluentAssertions;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework;
+using Xunit;
 
 namespace Fintrack.Tests.Handlers.NetWorth;
 
-[TestFixture]
 public class RemoveNetWorthPartCommandTests : TestBase
 {
-    [OneTimeSetUp]
-    public async Task SetUp()
+    private async Task InitializeAsync()
     {
         await using var context = CreateContext();
         context.NetWorthParts.Add(new NetWorthPart
@@ -73,9 +72,10 @@ public class RemoveNetWorthPartCommandTests : TestBase
         await context.SaveChangesAsync();
     }
 
-    [Test]
+    [Fact]
     public async Task RemoveNetWorthPartCommandHandler_RemoveNetWorthPart()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new RemoveNetWorthPartCommandHandler(context);
 
@@ -84,19 +84,20 @@ public class RemoveNetWorthPartCommandTests : TestBase
                 PartId = new Guid("B25928DF-AC38-43A5-839E-9DF4F4DF62CE"),
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var parts = await context.NetWorthParts.ToListAsync();
         var goals = await context.NetWorthGoals.ToListAsync();
 
-        Assert.AreEqual(1, parts.Count);
-        Assert.AreEqual(0, goals.Count);
-        Assert.AreEqual(1, parts[0].Order);
+        parts.Should().HaveCount(1);
+        goals.Should().HaveCount(0);
+        parts[0].Order.Should().Be(1);
     }
 
-    [Test]
+    [Fact]
     public async Task RemoveNetWorthPartCommandHandler_RemoveNetWorthPartWhenLast()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         context.RemoveRange(
             await context.NetWorthParts
@@ -111,30 +112,32 @@ public class RemoveNetWorthPartCommandTests : TestBase
                 PartId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B4"),
                 UserId = UserId
             },
-            new CancellationToken());
+            CancellationToken.None);
 
         var parts = await context.NetWorthParts.ToListAsync();
         var entries = await context.NetWorthEntries.ToListAsync();
 
-        Assert.AreEqual(0, parts.Count);
-        Assert.AreEqual(0, entries.Count);
+        parts.Should().HaveCount(0);
+        entries.Should().HaveCount(0);
     }
 
-    [Test]
+    [Fact]
     public async Task RemoveNetWorthPartCommandHandler_ThrowsException_WhenNetWorthPartDoesNotExist()
     {
+        await InitializeAsync();
         await using var context = CreateContext();
         var handler = new RemoveNetWorthPartCommandHandler(context);
 
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await handler.Handle(new RemoveNetWorthPartCommand
-            {
-                PartId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0"),
-                UserId = UserId
-            }, new CancellationToken()));
+        var act = async () => await handler.Handle(new RemoveNetWorthPartCommand
+        {
+            PartId = new Guid("92EA3A0F-EBB8-43CE-AF8F-F5A8807484B0"),
+            UserId = UserId
+        }, new CancellationToken());
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Test]
+    [Fact]
     public async Task RemoveNetWorthPartCommandValidator_ValidatesFields()
     {
         var validator = new RemoveNetWorthPartCommandValidator();
@@ -147,7 +150,7 @@ public class RemoveNetWorthPartCommandTests : TestBase
         result.ShouldNotHaveValidationErrorFor(x => x.PartId);
     }
 
-    [Test]
+    [Fact]
     public async Task RemoveNetWorthPartCommandValidator_ThrowsException_WhenFieldsAreIncorrect()
     {
         var validator = new RemoveNetWorthPartCommandValidator();

@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Fintrack.App.Functions.Admin.Commands.AddNotification;
 
-public class AddNotificationCommand : RequestBase, IRequest
+public class AddNotificationCommand : RequestBase, IRequest<Unit>
 {
     public NotificationModel Model { get; set; }
 }
