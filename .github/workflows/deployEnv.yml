@@ -40,7 +40,7 @@ jobs:
         working-directory: ./backend/Fintrack.WebApi
         run: dotnet publish "Fintrack.WebApi.csproj" --no-restore -c Release /p:EnvironmentName=${{ inputs.environment }}
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: files-app
           path: ./backend/Fintrack.WebApi/bin/Release/net6.0/publish/
@@ -63,7 +63,7 @@ jobs:
         working-directory: ./frontend
         run: npm run build:demo
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: files-demo
           path: ./frontend/ClientApp/
@@ -81,7 +81,7 @@ jobs:
       WEBSITE_CONTENT_PATH: ${{ secrets.WEBSITE_CONTENT_PATH }}
       DEMO_CONTENT_PATH: ${{ secrets.DEMO_CONTENT_PATH }}
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         name: Download artifacts
       - name: Deploy Application
         shell: cmd
