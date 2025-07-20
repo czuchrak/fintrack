@@ -1,9 +1,8 @@
-import {useEffect} from "react";
-import {Alert, AlertTitle, Stack} from "@mui/material";
-import {appConfig} from "src/config/config";
-import {useDispatch, useSelector} from "react-redux";
-import {removeError} from "src/redux/slices/errorSlice";
-import {useLocation} from "react-router-dom";
+import { useEffect } from "react";
+import { Alert, AlertTitle, Stack } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { removeError } from "src/redux/slices/errorSlice";
+import { useLocation } from "react-router-dom";
 
 export default function ErrorAlert() {
   const location = useLocation();
@@ -24,7 +23,7 @@ export default function ErrorAlert() {
           }}
         >
           <AlertTitle>Wystąpił błąd</AlertTitle>
-          {appConfig.prodMode === false ? error : "Spróbuj ponownie później"}
+          {error}
         </Alert>
       </Stack>
     )
