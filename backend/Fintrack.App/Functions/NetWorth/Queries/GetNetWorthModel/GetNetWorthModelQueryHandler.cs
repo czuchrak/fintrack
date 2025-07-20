@@ -94,8 +94,8 @@ public class GetNetWorthModelQueryHandler : IRequestHandler<GetNetWorthModelQuer
     private async Task<IList<ExchangeRateModel>> GetExchangeRates(IEnumerable<NetWorthPartModel> parts,
         IEnumerable<NetWorthEntryModel> entries)
     {
-        var currencies = parts.Select(x => x.Currency).Distinct();
-        var exchangeDates = entries.Select(x => x.ExchangeRateDate);
+        var currencies = parts.Select(x => x.Currency).Distinct().ToList();
+        var exchangeDates = entries.Select(x => x.ExchangeRateDate).Distinct().ToList();
 
         return await _context.ExchangeRates
             .Where(x => exchangeDates.Contains(x.Date) && currencies.Contains(x.Currency))

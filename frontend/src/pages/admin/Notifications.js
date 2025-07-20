@@ -165,7 +165,7 @@ export default function Notifications() {
                       <TableCell align="center">{type}</TableCell>
                       <TableCell align="center">{message}</TableCell>
                       <TableCell align="center">
-                        {url.substring(0, 19)}
+                        {url ? url.substring(0, 19) : ""}
                       </TableCell>
                       <TableCell align="center">
                         <Typography
